@@ -1,0 +1,10 @@
+{
+    
+    "ships": [
+        {
+            "name": "Clunker",
+            "description": "A certified, pre-owned ship your uncle found in a scrapyard. It'll take a lot of TLC to get it spaceworthy.",
+            "type": "starter"
+        }
+    ]
+}

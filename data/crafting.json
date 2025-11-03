@@ -1,0 +1,418 @@
+{
+  "recipes": {
+    "101": {
+      "name": "Plasteel Blade",
+      "aliases": ["pblade", "pb"],
+      "output": 1,
+      "materials": {
+        "plasteel": 15,
+        "plasteel_sheet": 1
+      },
+        "level_req": 2,
+      "description": "Craft a Plasteel Blade (Weapon)",
+      "category": "weapon"
+    },
+    "102": {
+      "name": "Circuit Whip",
+      "aliases": ["cwhip", "cw"],
+      "output": 1,
+      "materials": {
+        "plasteel": 30,
+        "circuit": 20,
+        "slug_slime": 1
+      },
+      "level_req": 5,
+      "description": "Craft a Circuit Whip (Weapon)",
+      "category": "weapon"
+    },
+    "103": {
+      "name": "Plasma Cutter",
+      "aliases": ["pcutter", "pc"],
+      "output": 1,
+      "materials": {
+        "plasteel": 40,
+        "microchip": 2,
+        "plasma": 10,
+        "slug_slime": 2
+      },
+      "level_req": 7,
+      "description": "Craft a Plasma Cutter (Weapon)",
+      "category": "weapon"
+    },
+    "104": {
+      "name": "Bio Blade",
+      "aliases": ["bblade", "bb"],
+      "output": 1,
+      "materials": {
+        "plasteel_bar": 53,
+        "biofiber": 5,
+        "biopolymer": 1,
+        "orchid_bloom": 1
+      },
+      "level_req": 9,
+      "description": "Craft a Bio Blade (Weapon)",
+      "category": "weapon"
+    },
+    "105": {
+      "name": "Floral Flouncer",
+      "aliases": ["fflouncer", "ff"],
+      "output": 1,
+      "materials": {
+        "plasteel": 500,
+        "biopolymer": 20,
+        "orchid_bloom": 6
+      },
+      "level_req": 13,
+      "description": "Craft a Floral Flouncer (Weapon)",
+      "category": "weapon"
+    },
+    "106": {
+      "name": "Sharder",
+      "aliases": ["sharder", "shard"],
+      "output": 1,
+      "materials": {
+        "plasma_slag": 50,
+        "crystal_shard": 5
+      },
+      "level_req": 15,
+      "description": "Craft a Sharder (Weapon)",
+      "category": "weapon"
+    },
+    "107": {
+      "name": "Scrapper",
+      "aliases": ["scrapper"],
+      "output": 1,
+      "materials": {
+        "scrap": 1000000,
+        "bio_gel": 5,
+        "motherboard": 3,
+        "crystal_shard": 5
+      },
+      "level_req": 18,
+      "description": "Craft a Scrapper (Weapon)",
+      "category": "weapon"
+    },
+    "108": {
+      "name": "Spline Reticulator",
+      "aliases": ["spline", "reticulator", "sr"],
+      "output": 1,
+      "materials": {
+        "plasteel_beam": 5,
+        "bio_metal_hybrid": 5,
+        "motherboard": 5,
+        "crystal_shard": 10
+      },
+      "level_req": 25,
+      "description": "Craft a Spline Reticulator (Weapon)",
+      "category": "weapon"
+    },
+    "109": {
+      "name": "Quantum Mechanator",
+      "aliases": ["qmech", "qm", "mechanator"],
+      "output": 1,
+      "materials": {
+        "plasteel_block": 1,
+        "bio_material_block": 1,
+        "quantum_computer": 1,
+        "plasma_module": 1
+      },
+      "level_req": 50,
+      "description": "Craft a Quantum Mechanator (Weapon)",
+      "category": "weapon"
+    },
+    "201": {
+      "name": "Plasteel Spacesuit",
+      "aliases": ["parmor", "psuit"],
+      "output": 1,
+      "materials": {
+        "plasteel": 20,
+        "plasteel_sheet": 2,
+        "crawler_tail": 2
+      },
+      "level_req": 3,
+      "description": "Craft a Plasteel Spacesuit (Armor)",
+      "category": "armor"
+    },
+    "202": {
+      "name": "Circuit Harness",
+      "aliases": ["charness", "ch"],
+      "output": 1,
+      "materials": {
+        "plasteel_bar": 3,
+        "circuit": 40,
+        "microchip": 2,
+        "slug_slime": 1
+      },
+      "level_req": 5,
+      "description": "Craft Circuit Harness (Armor)",
+      "category": "armor"
+    },
+    "203": {
+      "name": "Plasma Suit",
+      "aliases": ["plasmaarmor", "plasmasuit"],
+      "output": 1,
+      "materials": {
+        "plasma": 20,
+        "plasma_slag": 3,
+        "plasma_charge": 1
+      },
+      "level_req": 8,
+      "description": "Craft a Plasma Suit (Armor)",
+      "category": "armor"
+    },
+    "204": {
+      "name": "Petal Loincloth",
+      "aliases": ["petal", "loincloth", "pl"],
+      "output": 1,
+      "materials": {
+        "plasteel_sheet": 10,
+        "bio_gel": 3,
+        "orchid_bloom": 2
+      },
+      "level_req": 11,
+      "description": "Craft a Petal Loincloth (Armor)",
+      "category": "armor"
+    },
+    "205": {
+      "name": "Ghillie Suit",
+      "aliases": ["ghillie", "gsuit", "gs"],
+      "output": 1,
+      "materials": {
+        "plasteel": 150,
+        "biofiber": 50,
+        "biopolymer": 5,
+        "orchid_bloom": 5
+      },
+      "level_req": 11,
+      "description": "Craft a Ghillie Suit (Armor)",
+      "category": "armor"
+    },
+    "206": {
+      "name": "Quartzite Kevlar",
+      "aliases": ["quartzite", "kevlar", "qk"],
+      "output": 1,
+      "materials": {
+        "plasteel_bar": 2,
+        "processor": 2,
+        "plasma_charge": 2,
+        "crystal_shard": 5
+      },
+      "level_req": 18,
+      "description": "Craft a Quartzite Kevlar (Armor)",
+      "category": "armor"
+    },
+    "207": {
+      "name": "Scrapsuit",
+      "aliases": ["scrapsuit", "ssuit"],
+      "output": 1,
+      "materials": {
+        "scrap": 690420,
+        "plasma_core": 1,
+        "bio_metal_hybrid": 1
+      },
+      "level_req": 22,
+      "description": "Craft a Scrapsuit (Armor)",
+      "category": "armor"
+    },
+    "208": {
+      "name": "Iridium Overalls",
+      "aliases": ["iridium", "overalls", "io"],
+      "output": 1,
+      "materials": {
+        "plasteel_beam": 1,
+        "motherboard": 2,
+        "crystal_shard": 10
+      },
+      "level_req": 25,
+      "description": "Craft Iridium Overalls (Armor)",
+      "category": "armor"
+    },
+    "209": {
+      "name": "Quantum Protectenator",
+      "aliases": ["qprotect", "qp", "protectenator"],
+      "output": 1,
+      "materials": {
+        "crawler_tail": 50,
+        "slug_slime": 50,
+        "orchid_bloom": 50,
+        "crystal_shard": 35,
+        "lithium_ion": 15
+      },
+      "level_req": 50,
+      "description": "Craft a Quantum Protectenator (Armor)",
+      "category": "armor"
+    },
+    "plasteel_sheet": {
+      "name": "Plasteel Sheet",
+      "aliases": ["sheet"],
+      "output": 1,
+      "materials": {
+        "plasteel": 10
+      },
+      "description": "10 Plasteel → 1 Plasteel Sheet",
+      "category": "material"
+    },
+    "plasteel_bar": {
+      "name": "Plasteel Bar",
+      "aliases": ["bar"],
+      "output": 1,
+      "materials": {
+        "plasteel_sheet": 10
+      },
+      "description": "10 Plasteel Sheets → 1 Plasteel Bar",
+      "category": "material"
+    },
+    "plasteel_beam": {
+      "name": "Plasteel Beam",
+      "aliases": ["beam"],
+      "output": 1,
+      "materials": {
+        "plasteel_bar": 10
+      },
+      "description": "10 Plasteel Bars → 1 Plasteel Beam",
+      "category": "material"
+    },
+    "plasteel_block": {
+      "name": "Plasteel Block",
+      "aliases": ["block"],
+      "output": 1,
+      "materials": {
+        "plasteel_beam": 10
+      },
+      "description": "10 Plasteel Beams → 1 Plasteel Block",
+      "category": "material"
+    },
+    "microchip": {
+      "name": "Microchip",
+      "aliases": ["chip"],
+      "output": 1,
+      "materials": {
+        "circuit": 10
+      },
+      "description": "10 Circuits → 1 Microchip",
+      "category": "material"
+    },
+    "processor": {
+      "name": "Processor",
+      "aliases": ["cpu"],
+      "output": 1,
+      "materials": {
+        "microchip": 10
+      },
+      "description": "10 Microchips → 1 Processor",
+      "category": "material"
+    },
+    "motherboard": {
+      "name": "Motherboard",
+      "aliases": ["mobo"],
+      "output": 1,
+      "materials": {
+        "processor": 10
+      },
+      "description": "10 Processors → 1 Motherboard",
+      "category": "material"
+    },
+    "quantum_computer": {
+      "name": "Quantum Computer",
+      "aliases": ["quantum", "qc"],
+      "output": 1,
+      "materials": {
+        "motherboard": 10
+      },
+      "description": "10 Motherboards → 1 Quantum Computer",
+      "category": "material"
+    },
+    "plasma_slag": {
+      "name": "Plasma Slag",
+      "aliases": ["plslag", "slag"],
+      "output": 1,
+      "materials": {
+        "plasma": 10
+      },
+      "description": "10 Plasma → 1 Plasma Slag",
+      "category": "material"
+    },
+    "plasma_charge": {
+      "name": "Plasma Charge",
+      "aliases": ["pcharge", "charge"],
+      "output": 1,
+      "materials": {
+        "plasma_slag": 10
+      },
+      "description": "10 Plasma Slags → 1 Plasma Charge",
+      "category": "material"
+    },
+    "plasma_core": {
+      "name": "Plasma Core",
+      "aliases": ["pcore", "core"],
+      "output": 1,
+      "materials": {
+        "plasma_charge": 10
+      },
+      "description": "10 Plasma Charges → 1 Plasma Core",
+      "category": "material"
+    },
+    "plasma_module": {
+      "name": "Plasma Module",
+      "aliases": ["pmodule", "module"],
+      "output": 1,
+      "materials": {
+        "plasma_core": 10
+      },
+      "description": "10 Plasma Cores → 1 Plasma Module",
+      "category": "material"
+    },
+    "biopolymer": {
+      "name": "Biopolymer",
+      "aliases": ["biopol", "polymer", "poly"],
+      "output": 1,
+      "materials": {
+        "biofiber": 10
+      },
+      "description": "10 Biofiber → 1 Biopolymer",
+      "category": "material"
+    },
+    "bio_gel": {
+      "name": "Bio Gel",
+      "aliases": ["biogel", "gel"],
+      "output": 1,
+      "materials": {
+        "biopolymer": 10
+      },
+      "description": "10 Biopolymers → 1 Bio Gel",
+      "category": "material"
+    },
+    "bio_metal_hybrid": {
+      "name": "Bio-Metal Hybrid",
+      "aliases": ["bmh", "hybrid"],
+      "output": 1,
+      "materials": {
+        "bio_gel": 10
+      },
+      "description": "10 Bio Gels → 1 Bio-Metal Hybrid",
+      "category": "material"
+    },
+    "bio_material_block": {
+      "name": "Bio-Material Block",
+      "aliases": ["bmb", "block"],
+      "output": 1,
+      "materials": {
+        "bio_metal_hybrid": 10
+      },
+      "description": "10 Bio-Metal Hybrids → 1 Bio-Material Block",
+      "category": "material"
+    },
+    "511": {
+      "name": "FTL Drive",
+      "aliases": ["ftl", "drive"],
+      "output": 1,
+      "materials": {
+        "510": 1,
+        "plasteel": 1,
+        "circuit": 1
+      },
+      "description": "Craft an FTL Drive - allows sector travel.",
+      "category": "warpdrive"
+    }
+  }
+}

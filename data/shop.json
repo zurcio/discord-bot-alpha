@@ -1,0 +1,90 @@
+{
+  "consumables": {
+    "1": {
+      "item_id": "1",
+      "name": "Oxygen Tank",
+      "price": 20,
+      "description": "Restores 50 oxygen when used.",
+      "type": "consumable"
+    },
+    "2": {
+      "item_id": "2",
+      "name": "Medkit",
+      "price": 50,
+      "description": "Restores 50 health when used.",
+      "type": "consumable"
+    }
+  },
+  "gear": {
+    "100": {
+      "item_id": "101",
+      "name": "Basic Dagger",
+      "price": 100,
+      "description": "A basic weapon.",
+      "type": "weapon"
+    },
+    "200": {
+      "item_id": "201",
+      "name": "Basic Spacesuit",
+      "price": 100,
+      "description": "A basic armor.",
+      "type": "armor"
+    }
+  },
+  "lootbox": {
+    "300": {
+      "item_id": "300",
+      "name": "Common Lootbox",
+      "price": 5000,
+      "description": "A basic lootbox containing random items.",
+      "type": "lootbox"
+    },
+    "301": {
+      "item_id": "301",
+      "name": "Uncommon Lootbox",
+      "price": 25000,
+      "description": "A better lootbox containing better random items.",
+      "type": "lootbox"
+    },
+    "302": {
+      "item_id": "302",
+      "name": "Rare Lootbox",
+      "price": 50000,
+      "description": "An even better lootbox containing even better random items.",
+      "type": "lootbox"
+    },
+    "303": {
+      "item_id": "303",
+      "name": "Mythic Lootbox",
+      "price": 100000,
+      "description": "A powerful lootbox containing high-tier random items.",
+      "type": "lootbox"
+    },
+    "304": {
+      "item_id": "304",
+      "name": "Legendary Lootbox",
+      "price": 500000,
+      "description": "The ultimate lootbox containing the best random items.",
+      "type": "lootbox"
+    }
+  },
+  "keycard": {
+    "400": {
+      "item_id": "400",
+      "name": "Boss Room Keycard",
+      "price": 5000,
+      "description": "A keycard used to access restricted boss arena.",
+      "type": "key",
+      "limit": 1
+    }
+  },
+  "ship": {
+    "starter_ship": {
+      "item_id": "starter_ship",
+      "name": "Ship",
+      "price": 500,
+      "description": "A certified, pre-owned ship your uncle found in a scrapyard.",
+      "type": "ship"
+    }
+  }
+}

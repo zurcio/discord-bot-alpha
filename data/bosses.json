@@ -1,0 +1,372 @@
+{
+  "crawler_king": {
+    "name": "Crawler King",
+    "description": "The Crawler King is a massive, grotesque insectoid creature that rules over the subterranean tunnels of Terra. It is known for its brutal strength and relentless aggression, making it a formidable foe for any adventurer.",
+    "hp": 300,
+    "attack": 65,
+    "defense": 20,
+    "required_weapon_id": 101,
+    "required_armor_id": 201,
+    "keycard": "Boss Room Keycard",
+    "scaling": {
+      "hp_per_player": 300,
+      "attack_mult_per_player": 1.00,
+      "defense_mult_per_player": 1.00
+    },
+    "abilities": {
+      "claw_strike": {
+        "name": "Claw Strike",
+        "hit_chance": 0.85,
+        "damage_mult": 1.0,
+        "defense_pen": 0.0
+      },
+      "savage_bite": {
+        "name": "Savage Bite",
+        "hit_chance": 0.55,
+        "damage_mult": 1.2,
+        "defense_pen": 0.0
+      },
+      "rage_stomp": {
+        "name": "Rage Stomp",
+        "hit_chance": 0.30,
+        "damage_mult": 1.5,
+        "defense_pen": 0.5
+      }
+    },
+    "drops": [],
+    "planet": "Terra"
+  },
+  "crawler_queen": {
+    "name": "Crawler Queen",
+    "description": "The Crawler Queen is the matriarch of the Crawler species, residing deep within the caverns of Luna. She is larger and more dangerous than her kin, capable of unleashing deadly venom and commanding swarms of smaller Crawlers to defend her territory.",
+    "hp": 500,
+    "attack": 85,
+    "defense": 25,
+    "required_weapon_id": 101,
+    "required_armor_id": 201,
+    "keycard": "Boss Room Keycard",
+    "scaling": {
+      "hp_per_player": 500,
+      "attack_mult_per_player": 1.00,
+      "defense_mult_per_player": 1.00
+    },
+    "abilities": {
+      "venom_strike": {
+        "name": "Venom Strike",
+        "hit_chance": 0.85,
+        "damage_mult": 1.0,
+        "defense_pen": 0.0
+      },
+      "acid_spray": {
+        "name": "Acid Spray",
+        "hit_chance": 0.60,
+        "damage_mult": 1.6,
+        "defense_pen": 0.0
+      },
+      "queen_crush": {
+        "name": "Queen’s Crush",
+        "hit_chance": 0.30,
+        "damage_mult": 1.5,
+        "defense_pen": 0.5
+      }
+    },
+    "drops": [],
+    "planet": "Luna"
+  },
+  "don_slimeyoni": {
+    "name": "Don Slimeyoni",
+    "description": "Don Slimeyoni is a notorious crime lord who has taken refuge on Bayou. Known for his cunning and ruthlessness, he commands a gang of slime minions that do his bidding.",
+    "hp": 675,
+    "attack": 102,
+    "defense": 30,
+    "required_weapon_id": 102,
+    "required_armor_id": 202,
+    "keycard": "Boss Room Keycard",
+    "scaling": {
+      "hp_per_player": 675,
+      "attack_mult_per_player": 1.00,
+      "defense_mult_per_player": 1.00
+    },
+    "abilities": {
+      "slime_punch": {
+        "name": "Slime Punch",
+        "hit_chance": 0.85,
+        "damage_mult": 1.0,
+        "defense_pen": 0.0
+      },
+      "slime_slam": {
+        "name": "Slime Slam",
+        "hit_chance": 0.55,
+        "damage_mult": 1.3,
+        "defense_pen": 0.0
+      },
+      "slime_wave": {
+        "name": "Slime Wave",
+        "hit_chance": 0.30,
+        "damage_mult": 1.7,
+        "defense_pen": 0.4
+      }
+    },
+    "drops": [],
+    "planet": "Bayou"
+  },
+  "the_sluggitive": {
+    "name": "The Sluggitive",
+    "description": "The Sluggitive is a massive, slug-like creature that has adapted to the swampy environment of Swampilon. It is known for its tough, slimy hide and its ability to secrete a corrosive substance that can melt through armor. The Sluggitive is a slow but relentless predator, making it a dangerous foe for anyone who dares to enter its territory.",
+    "hp": 1000,
+    "attack": 127,
+    "defense": 33,
+    "required_weapon_id": 102,
+    "required_armor_id": 202,
+    "keycard": "Boss Room Keycard",
+    "scaling": {
+      "hp_per_player": 1000,
+      "attack_mult_per_player": 1.00,
+      "defense_mult_per_player": 1.00
+    },
+    "abilities": {
+      "slug_bash": {
+        "name": "Slug Bash",
+        "hit_chance": 0.85,
+        "damage_mult": 1.0,
+        "defense_pen": 0.0
+      },
+      "slug_swipe": {
+        "name": "Slug Swipe",
+        "hit_chance": 0.60,
+        "damage_mult": 1.4,
+        "defense_pen": 0.0
+      },
+      "slug_tide": {
+        "name": "Slug Tide",
+        "hit_chance": 0.30,
+        "damage_mult": 1.6,
+        "defense_pen": 0.3
+      }
+    },
+    "drops": [],
+    "planet": "Swampilon"
+  },
+  "shrubbery": {
+    "name": "Shrubbery",
+    "description": "Shrubbery is a sentient plant creature that inhabits The Floating Gardens. It is worshipped by the local Knights of the Garden as a deity of growth and renewal. Shrubbery manipulates its opponents with its powerful and inappropriate use of language, making it a unique and challenging adversary.",
+    "hp": 1500,
+    "attack": 159,
+    "defense": 40,
+    "required_weapon_id": 103,
+    "required_armor_id": 203,
+    "keycard": "Boss Room Keycard",
+    "scaling": {
+      "hp_per_player": 1500,
+      "attack_mult_per_player": 1.00,
+      "defense_mult_per_player": 1.00
+    },
+    "abilities": {
+      "ni": {
+        "name": "Ni",
+        "hit_chance": 0.85,
+        "damage_mult": 1.0,
+        "defense_pen": 0.0
+      },
+      "nu": {
+        "name": "Nu",
+        "hit_chance": 0.55,
+        "damage_mult": 1.3,
+        "defense_pen": 0.0
+      },
+      "ekke_ekke": {
+        "name": "Ekke Ekke Ekke Ekke Ptang Zoo Boing",
+        "hit_chance": 0.30,
+        "damage_mult": 1.8,
+        "defense_pen": 0.4
+      }
+    },
+    "drops": [],
+    "planet": "The Floating Gardens"
+  },
+  "audrey_iii":{
+    "name": "Audrey III",
+    "description": "Audrey III is a carnivorous plant monster that has taken over The Dark Forest. It is known for its insatiable hunger and its ability to lure victims with its hypnotic singing voice. Audrey III is a cunning and dangerous foe, capable of ensnaring prey with its vine-like appendages and delivering deadly bites with its razor-sharp teeth.",
+    "hp": 2200,
+    "attack": 200,
+    "defense": 50,
+    "required_weapon_id": 103,
+    "required_armor_id": 203,
+    "keycard": "Boss Room Keycard",
+    "scaling": {
+      "hp_per_player": 2200,
+      "attack_mult_per_player": 1.00,
+      "defense_mult_per_player": 1.00
+    },
+    "abilities": {
+      "bite": {
+        "name": "Bite",
+        "hit_chance": 0.85,
+        "damage_mult": 1.0,
+        "defense_pen": 0.0
+      },
+      "vine_whip": {
+        "name": "Vine Whip",
+        "hit_chance": 0.55,
+        "damage_mult": 1.4,
+        "defense_pen": 0.0
+      },
+      "poison_spit": {
+        "name": "Poison Spit",
+        "hit_chance": 0.30,
+        "damage_mult": 1.7,
+        "defense_pen": 0.3
+      }
+    },
+    "drops": [],
+    "planet": "The Dark Forest"
+  },
+  "rock_solid": {
+    "name": "Rock Solid",
+    "description": "Rock Solid is a towering golem made entirely of quartzite, known for its incredible durability and strength. It serves as the guardian of Downtown Battle Mountain, residing on 26th and L, protecting the area from intruders with its powerful attacks and unyielding defense. Rock Solid is a slow but relentless opponent, capable of withstanding heavy damage while delivering crushing blows to its enemies.",
+    "hp": 3500,
+    "attack": 250,
+    "defense": 60,
+    "required_weapon_id": 106,
+    "required_armor_id": 206,
+    "keycard": "Boss Room Keycard",
+    "scaling": {
+      "hp_per_player": 3000,
+      "attack_mult_per_player": 1.00,
+      "defense_mult_per_player": 1.00
+    },
+    "abilities": {
+      "skyhook": {
+        "name": "Skyhook",
+        "hit_chance": 0.85,
+        "damage_mult": 1.0,
+        "defense_pen": 0.0
+      },
+      "pounce_bounce": {
+        "name": "Pounce Bounce",
+        "hit_chance": 0.55,
+        "damage_mult": 1.5,
+        "defense_pen": 0.0
+      },
+      "heat_seeking_ghost": {
+        "name": "Heat Seeking Ghost",
+        "hit_chance": 0.30,
+        "damage_mult": 1.6,
+        "defense_pen": 0.4
+      }
+    },
+    "drops": [],
+    "planet": "Downtown Battle Mountain"
+  },
+  "eternal_crystalloid": {
+    "name": "Eternal Crystalloid",
+    "description": "The Eternal Crystalloid is a mystical entity composed entirely of crystal, residing within The Glass Diamond. It is revered by the local inhabitants as a symbol of purity and enlightenment. The Crystalloid possesses the ability to manipulate light and energy, using these powers to create dazzling attacks that can disorient and damage its foes. Its crystalline body reflects and refracts light, making it a challenging opponent to face in battle.",
+    "hp": 5000,
+    "attack": 310,
+    "defense": 75,
+    "required_weapon_id": 106,
+    "required_armor_id": 206,
+    "keycard": "Boss Room Keycard",
+    "scaling": {
+      "hp_per_player": 5000,
+      "attack_mult_per_player": 1.00,
+      "defense_mult_per_player": 1.00
+    },
+    "abilities": {
+      "crystal_shard": {
+        "name": "Crystal Shard",
+        "hit_chance": 0.85,
+        "damage_mult": 1.0,
+        "defense_pen": 0.0
+      },
+      "crystal_burst": {
+        "name": "Crystal Burst",
+        "hit_chance": 0.55,
+        "damage_mult": 1.4,
+        "defense_pen": 0.0
+      },
+      "crystal_storm": {
+        "name": "Crystal Storm",
+        "hit_chance": 0.30,
+        "damage_mult": 1.7,
+        "defense_pen": 0.3
+      }
+    },
+    "drops": [],
+    "planet": "The Glass Diamond"
+  },
+  "the_battery": {
+    "name": "The Battery",
+    "description": "The Battery is a colossal robotic entity that serves as the guardian of the Charging Station.",
+    "hp": 7500,
+    "attack": 400,
+    "defense": 90,
+    "required_weapon_id": 108,
+    "required_armor_id": 208,
+    "keycard": "Boss Room Keycard",
+    "scaling": {
+      "hp_per_player": 7500,
+      "attack_mult_per_player": 1.00,
+      "defense_mult_per_player": 1.00
+    },
+    "abilities": {
+      "arm_robbery": {
+        "name": "Arm Robbery",
+        "hit_chance": 0.85,
+        "damage_mult": 1.0,
+        "defense_pen": 0.0
+      },
+      "gravitated_salt": {
+        "name": "Gravitated Salt",
+        "hit_chance": 0.55,
+        "damage_mult": 1.5,
+        "defense_pen": 0.0
+      },
+      "salt": {
+        "name": "Salt as a deadly weapon",
+        "hit_chance": 0.30,
+        "damage_mult": 1.8,
+        "defense_pen": 0.4
+      }
+    },
+    "drops": [],
+    "planet": "Charging Station"
+  },
+  "deep_thought": {
+    "name": "Deep Thought",
+    "description": "Deep Thought is a supercomputer created by a race of hyper-intellingent pan-dimensional beings. Its purpose is to calculate the Answer to the Ultimate Question of Life, the Universe, and Everything. After seven and a half million years of computation, Deep Thought finally reveals that the answer is, in fact, 42. However, it also explains that the beings who created it never actually knew what the Ultimate Question was, and thus the answer is ultimately meaningless without that context. Deep Thought suggests that a new computer be built to determine what the Ultimate Question actually is.",
+    "hp": 10000,
+    "attack": 500,
+    "defense": 100,
+    "required_weapon_id": 109,
+    "required_armor_id": 209,
+    "keycard": "Boss Room Keycard",
+    "scaling": {
+      "hp_per_player": 10000,
+      "attack_mult_per_player": 1.00,
+      "defense_mult_per_player": 1.00
+    },
+    "abilities": {
+      "forty_two": {
+        "name": "42",
+        "hit_chance": 0.85,
+        "damage_mult": 1.0,
+        "defense_pen": 0.0
+      },
+      "pov_gun": {
+        "name": "Point of View Gun",
+        "hit_chance": 0.55,
+        "damage_mult": 1.6,
+        "defense_pen": 0.0
+      },
+      "question": {
+        "name": "What was the question again?",
+        "hit_chance": 0.30,
+        "damage_mult": 1.7,
+        "defense_pen": 0.3
+      }
+    },
+    "drops": [],
+    "planet": "Lithium Arcade"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "codes": {
+    "imnew": {
+      "description": "Welcome to the game! This code redeems a starter pack to get you going.",
+      "rewards": {
+        "Scrap": 500,
+        "Credits": 2,
+        "xp": 0,
+        "items": {
+          "1": 3,
+          "2": 3,
+          "300": 1
+        },
+        "starter_ship": false
+      },
+      "uses_left": -1,
+      "per_user_limit": 1,
+      "expires_at": null,
+      "disabled": false
+    },
+    "credits": {
+      "description": "Redeem this code to receive 5 Credits.",
+      "rewards": {
+        "Credits": 5
+      },
+      "uses_left": -1,
+      "per_user_limit": 1,
+      "expires_at": null,
+      "disabled": false
+    },
+    "secret" : {
+      "description": "A secret code",
+      "rewards": {
+        "Scrap": 100000,
+        "Credits": 10,
+        "xp": 500
+      },
+      "uses_left": -1,
+      "per_user_limit": 1,
+      "expires_at": null,
+      "disabled": false
+    }
+  }
+}

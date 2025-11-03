@@ -1,0 +1,77 @@
+import math
+from core.shared import load_json, save_json
+from core.constants import ITEMS_FILE
+from core.players import save_profile
+
+DISMANTLE_RETURN_RATE = 0.8  # 80% return
+
+
+def get_material_tiers():
+    """Defines dismantle progression order for each material group."""
+    return {
+        "plasteel": ["plasteel", "plasteel sheet", "plasteel bar", "plasteel beam", "plasteel block"],
+        "circuit": ["circuit", "microchip", "processor", "motherboard", "quantum computer"],
+        "plasma": ["plasma", "plasma slag", "plasma charge", "plasma core", "plasma module"],
+        "biofiber": ["biofiber", "biopolymer", "bio gel", "bio-metal hybrid", "bio-material block"]
+    }
+
+
+def dismantle_item(player, item_name: str, amount: int):
+    items_data = load_json(ITEMS_FILE)
+    inventory = player.get("inventory", {})
+
+    # Normalize input
+    query = item_name.lower().strip().replace("_", " ")
+
+    material_tiers = get_material_tiers()
+
+    # Find which tier the item belongs to
+    found_family, tier_index = None, None
+    for family, tiers in material_tiers.items():
+        for i, tier_name in enumerate(tiers):
+            if query == tier_name.lower():
+                found_family = family
+                tier_index = i
+                break
+        if found_family:
+            break
+
+    if not found_family:
+        return f"❌ `{item_name}` cannot be dismantled."
+
+    if tier_index == 0:
+        return f"❌ `{item_name}` is the base material and cannot be dismantled further."
+
+    # Find the actual inventory key that matches the query (spaces/underscores)
+    item_id = None
+    for inv_key in inventory.keys():
+        if inv_key.lower().replace("_", " ") == query:
+            item_id = inv_key
+            break
+
+    if not item_id or inventory.get(item_id, 0) < amount:
+        return f"❌ You don’t have enough `{item_name}` to dismantle."
+
+    # Determine what item this dismantles into
+    lower_tier_name = material_tiers[found_family][tier_index - 1]
+    # Find the inventory key for the lower tier (spaces/underscores)
+    lower_tier_id = None
+    for inv_key in inventory.keys():
+        if inv_key.lower().replace("_", " ") == lower_tier_name.lower():
+            lower_tier_id = inv_key
+            break
+    if not lower_tier_id:
+        lower_tier_id = lower_tier_name.replace(" ", "_")
+
+    lower_tier_qty = math.floor(10 * DISMANTLE_RETURN_RATE)  # 10 → 8 by default
+
+    # Apply transaction
+    inventory[item_id] -= amount
+    if inventory[item_id] <= 0:
+        del inventory[item_id]
+
+    inventory[lower_tier_id] = inventory.get(lower_tier_id, 0) + lower_tier_qty * amount
+    player["inventory"] = inventory
+
+    save_profile(player["id"], player)
+    return f"🔧 Dismantled **{amount}x {item_name}** → **{lower_tier_qty * amount}x {lower_tier_name}**"

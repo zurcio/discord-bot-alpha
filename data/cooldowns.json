@@ -1,0 +1,70 @@
+{
+    "139248413223944193": {
+        "username": "zurcio",
+        "cooldowns": {
+            "research": 1762182439,
+            "scan": 1762181888,
+            "work": 1762182027,
+            "ship refit": 1762123581,
+            "daily": 1762226256,
+            "explore": 1762185437,
+            "lootbox": 1762192638,
+            "bossfight": 1761905822,
+            "weekly": 1762378296,
+            "quest": 1762150647
+        }
+    },
+    "649453252185686027": {
+        "username": "saz111",
+        "cooldowns": {
+            "scan": 1761864298,
+            "research": 1761864759,
+            "daily": 1761947854,
+            "explore": 1761865058,
+            "work": 1761864386,
+            "weekly": 1762468999,
+            "quest": 1761606055,
+            "bossfight": 1761302381,
+            "ship refit": 1761890290,
+            "lootbox": 1761872990
+        }
+    },
+    "222079963128397834": {
+        "username": "unicow",
+        "cooldowns": {
+            "daily": 1762225673,
+            "weekly": 1762361623,
+            "scan": 1762182919,
+            "work": 1762182916,
+            "research": 1762183328,
+            "lootbox": 1762193550,
+            "ship refit": 1762211543,
+            "explore": 1762186326,
+            "quest": 1762193652,
+            "bossfight": 1762225999
+        }
+    },
+    "525410515418349588": {
+        "username": "davidiswinning",
+        "cooldowns": {
+            "scan": 1762143169,
+            "research": 1762143749,
+            "daily": 1762199945,
+            "work": 1762143326,
+            "explore": 1762146696,
+            "weekly": 1762555601,
+            "ship refit": 1762171920,
+            "bossfight": 1762159036,
+            "quest": 1762150439
+        }
+    },
+    "81811767570726912": {
+        "username": "thatdrunkendwarf",
+        "cooldowns": {
+            "scan": 1761674149,
+            "research": 1761674630,
+            "work": 1761674243,
+            "explore": 1761677680
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+  "items": {
+    "bank": {
+      "name": "Bank",
+      "price": 5,
+      "description": "Unlocks your personal bank. Deposit/withdraw Scrap and earn a small XP boost from savings.",
+      "aliases": ["vault"]
+    },
+    "ship_token": {
+      "name": "Ship Token",
+      "price": 10,
+      "description": "Use before !ship refit to keep your current ship type for that refit. Consumed on use.",
+      "aliases": ["ship token", "token"]
+    }
+  }
+}

@@ -1,0 +1,502 @@
+{
+  "P1E": {
+    "wolf": {
+      "name": "Wolf",
+      "category": "basic",
+      "hp": 10,
+      "attack": 10,
+      "defense": 2,
+      "drops": []
+    },
+    "bear": {
+      "name": "Bear",
+      "category": "basic",
+      "hp": 10,
+      "attack": 10,
+      "defense": 2,
+      "drops": []
+    },
+    "crawler": {
+      "name": "Crawler",
+      "category": "basic",
+      "hp": 10,
+      "attack": 10,
+      "defense": 2,
+      "drops": ["crawler_tail"]
+    },
+    "elder_wolf": {
+      "name": "Elder Wolf",
+      "category": "elite",
+      "hp": 25,
+      "attack": 25,
+      "defense": 5,
+      "drops": []
+    },
+    "alpha_bear": {
+      "name": "Alpha Bear",
+      "category": "elite",
+      "hp": 25,
+      "attack": 25,
+      "defense": 5,
+      "drops": []
+    },
+    "crawler_soldier": {
+      "name": "Crawler Soldier",
+      "category": "elite",
+      "hp": 25,
+      "attack": 25,
+      "defense": 5,
+      "drops": ["crawler_tail", "lootbox"]
+    }
+  },
+  "P2E":{
+    "werewolf": {
+      "name": "Werewolf",
+      "category": "basic",
+      "hp": 16,
+      "attack": 16,
+      "defense": 3,
+      "drops": []
+    },
+    "werebear": {
+      "name": "Werebear",
+      "category": "basic",
+      "hp": 16,
+      "attack": 16,
+      "defense": 3,
+      "drops": []
+    },
+    "crawler": {
+      "name": "Crawler",
+      "category": "basic",
+      "hp": 16,
+      "attack": 16,
+      "defense": 3,
+      "drops": ["crawler_tail"]
+    },
+    "alpha_werewolf": {
+      "name": "Alpha Werewolf",
+      "category": "elite",
+      "hp": 32,
+      "attack": 24,
+      "defense": 8,
+      "drops": []
+    },
+    "alpha_werebear": {
+      "name": "Alpha Werebear",
+      "category": "elite",
+      "hp": 32,
+      "attack": 24,
+      "defense": 8,
+      "drops": []
+    },
+    "crawler_warrior": {
+      "name": "Crawler Warrior",
+      "category": "elite",
+      "hp": 32,
+      "attack": 24,
+      "defense": 8,
+      "drops": ["crawler_tail", "lootbox"]
+    }
+  },
+  "P3E":{
+    "tardigrade": {
+      "name": "Tardigrade",
+      "category": "basic",
+      "hp": 26,
+      "attack": 25,
+      "defense": 5,
+      "drops": []
+    },
+    "crocodile": {
+      "name": "Crocodile",
+      "category": "basic",
+      "hp": 26,
+      "attack": 25,
+      "defense": 5,
+      "drops": []
+    },
+    "slug": {
+      "name": "Slug",
+      "category": "basic",
+      "hp": 26,
+      "attack": 25,
+      "defense": 5,
+      "drops": ["slug_slime"]
+    },
+    "giant_tardigrade": {
+      "name": "Giant Tardigrade",
+      "category": "elite",
+      "hp": 52,
+      "attack": 38,
+      "defense": 10,
+      "drops": []
+    },
+    "giant_crocodile": {
+      "name": "Giant Crocodile",
+      "category": "elite",
+      "hp": 52,
+      "attack": 38,
+      "defense": 10,
+      "drops": []
+    },
+    "slug_thug": {
+      "name": "Slug Thug",
+      "category": "elite",
+      "hp": 52,
+      "attack": 38,
+      "defense": 10,
+      "drops": ["slug_slime", "lootbox"]
+    }
+  },
+  "P4E":{
+    "slug":{
+      "name": "Slug",
+      "category": "basic",
+      "hp": 42,
+      "attack": 39,
+      "defense": 7,
+      "drops": ["slug_slime"]
+    },
+    "wereslime":{
+      "name": "Wereslime",
+      "category": "basic",
+      "hp": 42,
+      "attack": 39,
+      "defense": 7,
+      "drops": []
+    },
+    "crunkodile":{
+      "name": "Crunkodile",
+      "category": "basic",
+      "hp": 42,
+      "attack": 39,
+      "defense": 7,
+      "drops": []
+    },
+    "slug_bruiser":{
+      "name": "Slug Bruiser",
+      "category": "elite",
+      "hp": 84,
+      "attack": 59,
+      "defense": 14,
+      "drops": ["slug_slime", "lootbox"]
+    },
+    "alpha_wereslime":{
+      "name": "Slurms Mckenzie",
+      "category": "elite",
+      "hp": 84,
+      "attack": 59,
+      "defense": 14,
+      "drops": []
+    },
+    "giant_crunkodile":{
+      "name": "Giant Crunkodile",
+      "category": "elite",
+      "hp": 84,
+      "attack": 59,
+      "defense": 14,
+      "drops": []
+    }
+  },
+  "P5E":{
+    "orchid": {
+      "name": "Orchid",
+      "category": "basic",
+      "hp": 67,
+      "attack": 61,
+      "defense": 11,
+      "drops": ["orchid_bloom"]
+    },
+    "triffid_sprout": {
+      "name": "Triffid Sprout",
+      "category": "basic",
+      "hp": 67,
+      "attack": 61,
+      "defense": 11,
+      "drops": []
+    },
+    "myconid": {
+      "name": "Myconid",
+      "category": "basic",
+      "hp": 67,
+      "attack": 61,
+      "defense": 11,
+      "drops": []
+    },
+    "vampweed": {
+      "name": "Vampweed",
+      "category": "elite",
+      "hp": 134,
+      "attack": 92,
+      "defense": 22,
+      "drops": ["orchid_bloom", "lootbox"]
+    },
+    "elder_triffid": {
+      "name": "Elder Triffid",
+      "category": "elite",
+      "hp": 134,
+      "attack": 92,
+      "defense": 22,
+      "drops": []
+    },
+    "fungal_colossus": {
+      "name": "Fungal Colossus",
+      "category": "elite",
+      "hp": 134,
+      "attack": 92,
+      "defense": 22,
+      "drops": []
+    }
+  },
+  "P6E":{
+    "orchid":{
+      "name": "Orchid",
+      "category": "basic",
+      "hp": 108,
+      "attack": 98,
+      "defense": 18,
+      "drops": ["orchid_bloom"]
+    },
+    "treant":{
+      "name": "Treant",
+      "category": "basic",
+      "hp": 108,
+      "attack": 98,
+      "defense": 18,
+      "drops": []
+    },
+    "flood_spawner":{
+      "name": "Flood Spawner",
+      "category": "basic",
+      "hp": 108,
+      "attack": 98,
+      "defense": 18,
+      "drops": []
+    },
+    "vampweed_brute":{
+      "name": "Vampweed Brute",
+      "category": "elite",
+      "hp": 216,
+      "attack": 147,
+      "defense": 36,
+      "drops": ["orchid_bloom", "lootbox"]
+    },
+    "ancient_treant":{
+      "name": "Ancient Treant",
+      "category": "elite",
+      "hp": 216,
+      "attack": 147,
+      "defense": 36,
+      "drops": []
+    },
+    "flood_abomination":{
+      "name": "Flood Abomination",
+      "category": "elite",
+      "hp": 216,
+      "attack": 147,
+      "defense": 36,
+      "drops": []
+    }
+  },
+  "P7E":{
+    "crystalloid": {
+      "name": "Crystalloid",
+      "category": "basic",
+      "hp": 173,
+      "attack": 157,
+      "defense": 29,
+      "drops": ["crystal_shard"]
+    },
+    "rockman": {
+      "name": "Rockman",
+      "category": "basic",
+      "hp": 173,
+      "attack": 157,
+      "defense": 29,
+      "drops": []
+    },
+    "golem": {
+      "name": "Golem",
+      "category": "basic",
+      "hp": 173,
+      "attack": 157,
+      "defense": 29,
+      "drops": []
+    },
+    "crystal_sentinel": {
+      "name": "Crystal Sentinel",
+      "category": "elite",
+      "hp": 346,
+      "attack": 235,
+      "defense": 58,
+      "drops": ["crystal_shard", "lootbox"]
+    },
+    "rock_giant": {
+      "name": "Rock Giant",
+      "category": "elite",
+      "hp": 346,
+      "attack": 235,
+      "defense": 58,
+      "drops": []
+    },
+    "ancient_golem": {
+      "name": "Ancient Golem",
+      "category": "elite",
+      "hp": 346,
+      "attack": 235,
+      "defense": 58,
+      "drops": []
+    }
+  },
+  "P8E":{
+    "crystalloid": {
+      "name": "Crystalloid",
+      "category": "basic",
+      "hp": 277,
+      "attack": 251,
+      "defense": 46,
+      "drops": ["crystal_shard"]
+    },
+    "geode": {
+      "name": "Geode",
+      "category": "basic",
+      "hp": 277,
+      "attack": 251,
+      "defense": 46,
+      "drops": []
+    },
+    "basilisk": {
+      "name": "Basilisk",
+      "category": "basic",
+      "hp": 277,
+      "attack": 251,
+      "defense": 46,
+      "drops": []
+    },
+    "crystal_colossus": {
+      "name": "Crystal Colossus",
+      "category": "elite",
+      "hp": 554,
+      "attack": 376,
+      "defense": 92,
+      "drops": ["crystal_shard", "lootbox"]
+    },
+    "geode_giant": {
+      "name": "Geode Giant",
+      "category": "elite",
+      "hp": 554,
+      "attack": 376,
+      "defense": 92,
+      "drops": []
+    },
+    "ancient_basilisk": {
+      "name": "Ancient Basilisk",
+      "category": "elite",
+      "hp": 554,
+      "attack": 376,
+      "defense": 92,
+      "drops": []
+    }
+  },
+  "P9E":{
+    "lithioid": {
+      "name": "Lithioid",
+      "category": "basic",
+      "hp": 443,
+      "attack": 401,
+      "defense": 73,
+      "drops": ["lithium_ion"]
+    },
+    "duskbringer": {
+      "name": "Duskbringer",
+      "category": "basic",
+      "hp": 443,
+      "attack": 401,
+      "defense": 73,
+      "drops": []
+    },
+    "shelldrake": {
+      "name": "Shelldrake",
+      "category": "basic",
+      "hp": 443,
+      "attack": 401,
+      "defense": 73,
+      "drops": []
+    },
+    "lithium_titan": {
+      "name": "Lithium Titan",
+      "category": "elite",
+      "hp": 886,
+      "attack": 450,
+      "defense": 146,
+      "drops": ["lithium_ion", "lootbox"]
+    },
+    "catalyzer": {
+      "name": "Catalyzer",
+      "category": "elite",
+      "hp": 886,
+      "attack": 450,
+      "defense": 146,
+      "drops": []
+    },
+    "bender": {
+      "name": "Bender",
+      "category": "elite",
+      "hp": 886,
+      "attack": 450,
+      "defense": 146,
+      "drops": []
+    }
+  },
+  "P10E":{
+    "lithioid": {
+      "name": "Lithioid",
+      "category": "basic",
+      "hp": 711,
+      "attack": 425,
+      "defense": 117,
+      "drops": ["lithium_ion"]
+    },
+    "voidreaver": {
+      "name": "Voidreaver",
+      "category": "basic",
+      "hp": 711,
+      "attack": 425,
+      "defense": 117,
+      "drops": []
+    },
+    "nebulisk": {
+      "name": "Nebulisk",
+      "category": "basic",
+      "hp": 711,
+      "attack": 425,
+      "defense": 117,
+      "drops": []
+    },
+    "lithium_colossus": {
+      "name": "Lithium Colossus",
+      "category": "elite",
+      "hp": 1422,
+      "attack": 500,
+      "defense": 234,
+      "drops": ["lithium_ion", "lootbox"]
+    },
+    "void_titan": {
+      "name": "Void Titan",
+      "category": "elite",
+      "hp": 1422,
+      "attack": 500,
+      "defense": 234,
+      "drops": []
+    },
+    "ancient_nebulisk": {
+      "name": "Ancient Nebulisk",
+      "category": "elite",
+      "hp": 1422,
+      "attack": 500,
+      "defense": 234,
+      "drops": []
+    }
+  }
+}

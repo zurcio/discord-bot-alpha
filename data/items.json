@@ -1,0 +1,754 @@
+{
+  "consumables": {
+    "1": {
+      "name": "Oxygen Tank",
+      "aliases": ["oxygen", "tank", "oxy"],
+      "type": "consumable",
+      "effect": "restore_oxygen",
+      "restore": 50,
+      "usable": true,
+      "sellable": true,
+      "value": 10
+    },
+    "2": {
+      "name": "Medkit",
+      "aliases": ["med", "kit", "heal"],
+      "type": "consumable",
+      "effect": "restore_health",
+      "restore": 50,
+      "usable": true,
+      "sellable": true,
+      "value": 25
+    }
+  },
+  "weapons": {
+    "100": {
+      "name": "Basic Dagger",
+      "aliases": ["dagger", "knife", "blade", "dag"],
+      "type": "weapon",
+      "attack": 1,
+      "attack_mult": 1.0,
+      "defense": 0,
+      "defense_mult": 1.0,
+      "level_req": 1,
+      "usable": false,
+      "sellable": true,
+      "value": 50
+    },
+    "101": {
+      "name": "Plasteel Blade",
+      "aliases": ["pblade", "pb"],
+      "type": "weapon",
+      "attack": 15,
+      "attack_mult": 1.0,
+      "defense": 0,
+      "defense_mult": 1.0,
+      "level_req": 2,
+      "usable": false,
+      "sellable": true,
+      "value": 2000
+    },
+    "102": {
+      "name": "Circuit Whip",
+      "aliases": ["cwhip", "cw"],
+      "type": "weapon",
+      "attack": 33,
+      "attack_mult": 1.0,
+      "defense": 0,
+      "defense_mult": 1.0,
+      "level_req": 5,
+      "usable": false,
+      "sellable": true,
+      "value": 5000
+    },
+    "103": {
+      "name": "Plasma Cutter",
+      "aliases": ["pcutter", "pc"],
+      "type": "weapon",
+      "attack": 45,
+      "attack_mult": 1.0,
+      "defense": 0,
+      "defense_mult": 1.0,
+      "level_req": 8,
+      "usable": false,
+      "sellable": true,
+      "value": 10000
+    },
+    "104": {
+      "name": "Bio Blade",
+      "aliases": ["bblade", "bb"],
+      "type": "weapon",
+      "attack": 60,
+      "attack_mult": 1.0,
+      "defense": 0,
+      "defense_mult": 1.0,
+      "level_req": 11,
+      "usable": false,
+      "sellable": true,
+      "value": 25000
+    },
+    "105": {
+      "name": "Floral Flouncer",
+      "aliases": ["fflouncer", "ff"],
+      "type": "weapon",
+      "attack": 78,
+      "attack_mult": 1.0,
+      "defense": 0,
+      "defense_mult": 1.0,
+      "level_req": 15,
+      "usable": false,
+      "sellable": true,
+      "value": 50000
+    },
+    "106": {
+      "name": "Sharder",
+      "aliases": ["sharder", "shard"],
+      "type": "weapon",
+      "attack": 83,
+      "attack_mult": 1.0,
+      "defense": 0,
+      "defense_mult": 1.0,
+      "level_req": 18,
+      "usable": false,
+      "sellable": true,
+      "value": 100000
+    },
+    "107": {
+      "name": "Scrapper",
+      "aliases": ["scrapper"],
+      "type": "weapon",
+      "attack": 95,
+      "attack_mult": 1.0,
+      "defense": 0,
+      "defense_mult": 1.0,
+      "level_req": 22,
+      "usable": false,
+      "sellable": true,
+      "value": 250000
+    },
+    "108": {
+      "name": "Spline Reticulator",
+      "aliases": ["spline", "reticulator", "sr"],
+      "type": "weapon",
+      "attack": 110,
+      "attack_mult": 1.0,
+      "defense": 0,
+      "defense_mult": 1.0,
+      "level_req": 25,
+      "usable": false,
+      "sellable": true,
+      "value": 500000
+    },
+    "109": {
+      "name": "Quantum Mechanator",
+      "aliases": ["qmech", "qm", "mechanator"],
+      "type": "weapon",
+      "attack": 200,
+      "attack_mult": 1.0,
+      "defense": 0,
+      "defense_mult": 1.0,
+      "level_req": 50,
+      "usable": false,
+      "sellable": true,
+      "value": 1000000
+    }
+  },
+  "armor": {
+    "200": {
+      "name": "Basic Spacesuit",
+      "aliases": ["suit", "spacesuit"],
+      "type": "armor",
+      "attack": 0,
+      "attack_mult": 1.0,
+      "defense": 1,
+      "defense_mult": 1.0,
+      "oxygen_capacity": 100,
+      "oxygen_regen": 1,
+      "oxygen_efficiency": 1.0,
+      "level_req": 1,
+      "usable": false,
+      "sellable": true,
+      "value": 50
+    },
+    "201": {
+      "name": "Plasteel Spacesuit",
+      "aliases": ["parmor", "psuit"],
+      "type": "armor",
+      "attack": 0,
+      "attack_mult": 1.0,
+      "defense": 15,
+      "defense_mult": 1.0,
+      "oxygen_capacity": 120,
+      "oxygen_regen": 2,
+      "oxygen_efficiency": 1.1,
+      "level_req": 2,
+      "usable": false,
+      "sellable": true,
+      "value": 2000
+    },
+    "202": {
+      "name": "Circuit Harness",
+      "aliases": ["charness", "ch"],
+      "type": "armor",
+      "attack": 0,
+      "attack_mult": 1.0,
+      "defense": 25,
+      "defense_mult": 1.0,
+      "oxygen_capacity": 140,
+      "oxygen_regen": 5,
+      "oxygen_efficiency": 1.3,
+      "level_req": 5,
+      "usable": false,
+      "sellable": true,
+      "value": 5000
+    },
+    "203": {
+      "name": "Plasma Suit",
+      "aliases": ["plasuit"],
+      "type": "armor",
+      "attack": 0,
+      "attack_mult": 1.0,
+      "defense": 35,
+      "defense_mult": 1.0,
+      "oxygen_capacity": 160,
+      "oxygen_regen": 8,
+      "oxygen_efficiency": 1.5,
+      "level_req": 8,
+      "usable": false,
+      "sellable": true,
+      "value": 10000
+    },
+    "204": {
+      "name": "Petal Loincloth",
+      "aliases": ["petal", "loincloth", "pl"],
+      "type": "armor",
+      "attack": 0,
+      "attack_mult": 1.0,
+      "defense": 42,
+      "defense_mult": 1.0,
+      "oxygen_capacity": 180,
+      "oxygen_regen": 13,
+      "oxygen_efficiency": 1.8,
+      "level_req": 11,
+      "usable": false,
+      "sellable": true,
+      "value": 25000
+    },
+    "205": {
+      "name": "Ghillie Suit",
+      "aliases": ["ghillie", "gsuit", "gs"],
+      "type": "armor",
+      "attack": 0,
+      "attack_mult": 1.0,
+      "defense": 55,
+      "defense_mult": 1.0,
+      "oxygen_capacity": 200,
+      "oxygen_regen": 17,
+      "oxygen_efficiency": 2.0,
+      "level_req": 15,
+      "usable": false,
+      "sellable": true,
+      "value": 50000
+    },
+    "206": {
+      "name": "Quartzite Kevlar",
+      "aliases": ["quartzite", "kevlar", "qk"],
+      "type": "armor",
+      "attack": 0,
+      "attack_mult": 1.0,
+      "defense": 69,
+      "defense_mult": 1.0,
+      "oxygen_capacity": 220,
+      "oxygen_regen": 21,
+      "oxygen_efficiency": 2.3,
+      "level_req": 18,
+      "usable": false,
+      "sellable": true,
+      "value": 100000
+    },
+    "207": {
+      "name": "Scrapsuit",
+      "aliases": ["scrapsuit", "ssuit"],
+      "type": "armor",
+      "attack": 0,
+      "attack_mult": 1.0,
+      "defense": 85,
+      "defense_mult": 1.0,
+      "oxygen_capacity": 240,
+      "oxygen_regen": 25,
+      "oxygen_efficiency": 2.5,
+      "level_req": 22,
+      "usable": false,
+      "sellable": true,
+      "value": 250000
+    },
+    "208": {
+      "name": "Iridium Overalls",
+      "aliases": ["iridium", "overalls", "io"],
+      "type": "armor",
+      "attack": 0,
+      "attack_mult": 1.0,
+      "defense": 100,
+      "defense_mult": 1.0,
+      "oxygen_capacity": 260,
+      "oxygen_regen": 30,
+      "oxygen_efficiency": 2.8,
+      "level_req": 25,
+      "usable": false,
+      "sellable": true,
+      "value": 500000
+    },
+    "209": {
+      "name": "Quantum Protectenator",
+      "aliases": ["qprotect", "qp", "protectenator"],
+      "type": "armor",
+      "attack": 0,
+      "attack_mult": 1.0,
+      "defense": 250,
+      "defense_mult": 1.0,
+      "oxygen_capacity": 300,
+      "oxygen_regen": 55,
+      "oxygen_efficiency": 5.0,
+      "level_req": 50, 
+      "usable": false,
+      "sellable": true,
+      "value": 1000000
+    }
+  },
+  "keycard": {
+    "400": {
+      "name": "Boss Room Keycard",
+      "aliases": ["key", "card", "boss room keycard", "bosskey", "keycard"],
+      "type": "keycard",
+      "usable": false,
+      "sellable": false,
+      "description": "A keycard used to access restricted boss arena."
+    }
+  },
+  "drops": {
+    "crawler_tail": {
+      "name": "Crawler Tail",
+      "aliases": [],
+      "type": "drop",
+      "planet": [1, 2],
+      "usable": false,
+      "sellable": true,
+      "value": 1000,
+      "description": "The tail of a crawler. Found by defeating crawler enemies on Terra and Luna"
+    },
+    "slug_slime": {
+      "name": "Slug Slime",
+      "aliases": [],
+      "type": "drop",
+      "planet": [3, 4],
+      "usable": false,
+      "sellable": true,
+      "value": 10000,
+      "description": "A glob of slime from a slug. Found by defeating slug enemies on Planet 3 and Planet 4."
+    },
+    "orchid_bloom": {
+      "name": "Orchid Bloom",
+      "aliases": [],
+      "type": "drop",
+      "planet": [5, 6],
+      "usable": false,
+      "sellable": true,
+      "value": 25000,
+      "description": "A beautiful flower in full bloom. Found by defeating orchid enemies on Planet 5 and Planet 6."
+    },
+    "crystal_shard": {
+      "name": "Crystal Shard",
+      "aliases": [],
+      "type": "drop",
+      "planet": [7, 8],
+      "usable": false,
+      "sellable": true,
+      "value": 100000,
+      "description": "A shiny crystal fragment. Found by defeating crystal enemies on Planet 7 and Planet 8."
+    },
+    "lithium_ion": {
+      "name": "Lithium Ion",
+      "aliases": [],
+      "type": "drop",
+      "planet": [9, 10],
+      "usable": false,
+      "sellable": true,
+      "value": 500000,
+      "description": "A lithium ion cell. Found by defeating lithioid enemies on Planet 9 and Planet 10."
+    }
+  },
+  "materials": {
+    "plasteel": {
+      "name": "Plasteel",
+      "aliases": [],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 25,
+      "description": "Basic Plasteel material used for crafting."
+    },
+    "plasteel_sheet": {
+      "name": "Plasteel Sheet",
+      "aliases": ["sheet"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 100,
+      "description": "10 Plasteel can be crafted into 1 Plasteel Sheet."
+    },
+    "plasteel_bar": {
+      "name": "Plasteel Bar",
+      "aliases": ["bar"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 500,
+      "description": "10 Plasteel Sheets can be crafted into 1 Plasteel Bar."
+    },
+    "plasteel_beam": {
+      "name": "Plasteel Beam",
+      "aliases": ["beam"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 5000,
+      "description": "10 Plasteel Bars can be crafted into 1 Plasteel Beam."
+    },
+    "plasteel_block": {
+      "name": "Plasteel Block",
+      "aliases": ["block"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 500000,
+      "description": "10 Plasteel Beams can be crafted into 1 Plasteel Block."
+    },
+    "circuit": {
+      "name": "Circuit",
+      "aliases": ["circ"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 100,
+      "description": "Basic electronic component used for crafting tech items."
+    },
+    "microchip": {
+      "name": "Microchip",
+      "aliases": ["chip"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 1000,
+      "description": "10 Circuits can be crafted into 1 Microchip."
+    },
+    "processor": {
+      "name": "Processor",
+      "aliases": ["cpu"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 10000,
+      "description": "10 Microchips can be crafted into 1 Processor."
+    },
+    "motherboard": {
+      "name": "Motherboard",
+      "aliases": ["board", "mb"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 100000,
+      "description": "10 Processors can be crafted into 1 Motherboard."
+    },
+    "quantum_computer": {
+      "name": "Quantum Computer",
+      "aliases": ["quantum", "qc"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 1000000,
+      "description": "10 Motherboards can be crafted into 1 Quantum Computer."
+    },
+    "plasma": {
+      "name": "Plasma",
+      "aliases": [],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 500,
+      "description": "Basic energy/fuel material used for crafting energy devices."
+    },
+    "plasma_slag": {
+      "name": "Plasma Slag",
+      "aliases": ["slag"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 2500,
+      "description": "10 Plasma units can be crafted into 1 Plasma Slag."
+    },
+    "plasma_charge": {
+      "name": "Plasma Charge",
+      "aliases": ["charge"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 10000,
+      "description": "10 Plasma Slags can be crafted into 1 Plasma Charge."
+    },
+    "plasma_core": {
+      "name": "Plasma Core",
+      "aliases": ["core"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 50000,
+      "description": "10 Plasma Charges can be crafted into 1 Plasma Core."
+    },
+    "plasma_module": {
+      "name": "Plasma Module",
+      "aliases": ["module"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 500000,
+      "description": "10 Plasma Cores can be crafted into 1 Plasma Module."
+    },
+    "biofiber": {
+      "name": "Biofiber",
+      "aliases": ["bio"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 200,
+      "description": "Basic organic material used for crafting biotech items."
+    },
+    "biopolymer": {
+      "name": "Biopolymer",
+      "aliases": ["polymer", "biopol", "poly"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 5000,
+      "description": "10 Biofiber units can be crafted into 1 Biopolymer."
+    },
+    "bio_gel": {
+      "name": "Bio Gel",
+      "aliases": ["gel"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 25000,
+      "description": "10 Biopolymers can be crafted into 1 Bio Gel."
+    },
+    "bio_metal_hybrid": {
+      "name": "Bio-Metal Hybrid",
+      "aliases": ["hybrid", "bmh"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 100000,
+      "description": "10 Bio Gels can be crafted into 1 Bio-Metal Hybrid."
+    },
+    "bio_material_block": {
+      "name": "Bio-Material Block",
+      "aliases": ["bioblock", "bmb"],
+      "type": "material",
+      "usable": false,
+      "sellable": true,
+      "value": 2500000,
+      "description": "10 Bio-Metal Hybrids can be crafted into 1 Bio-Material Block."
+    }
+  },
+  "lootboxes": {
+    "300": {
+      "name": "Common Lootbox",
+      "aliases": ["common", "c", "lootbox c"],
+      "type": "lootbox",
+      "tier": "common",
+      "description": "A basic lootbox containing low-tier materials and drops.",
+      "emoji": "📦"
+    },
+    "301": {
+      "name": "Uncommon Lootbox",
+      "aliases": ["uncommon", "uc", "lootbox uc"],
+      "type": "lootbox",
+      "tier": "uncommon",
+      "usable": false,
+      "sellable": false,
+      "description": "A better lootbox with improved rewards.",
+      "emoji": "🎁"
+    },
+    "302": {
+      "name": "Rare Lootbox",
+      "aliases": ["rare", "r", "lootbox r"],
+      "type": "lootbox",
+      "tier": "rare",
+      "usable": false,
+      "sellable": false,
+      "description": "A rare lootbox filled with higher quality loot.",
+      "emoji": "🗃️"
+    },
+    "303": {
+      "name": "Mythic Lootbox",
+      "aliases": ["mythic", "m", "lootbox m"],
+      "type": "lootbox",
+      "tier": "mythic",
+      "usable": false,
+      "sellable": false,
+      "description": "A powerful lootbox containing valuable resources.",
+      "emoji": "💎"
+    },
+    "304": {
+      "name": "Legendary Lootbox",
+      "aliases": ["legendary", "l", "lootbox l"],
+      "type": "lootbox",
+      "tier": "legendary",
+      "usable": false,
+      "sellable": false,
+      "description": "The ultimate lootbox, packed with rare and exotic items.",
+      "emoji": "🚀"
+    },
+    "305":{
+      "name": "Solar Lootbox",
+      "aliases": ["solar", "s", "lootbox s"],
+      "type": "lootbox",
+      "tier": "solar",
+      "usable": false,
+      "sellable": false,
+      "description": "A solar lootbox containing the rarest of items.",
+      "emoji": "🌌"
+    },
+    "306":{
+      "name": "Galactic Lootbox",
+      "aliases": ["galactic", "g", "lootbox g"],
+      "type": "lootbox",
+      "tier": "galactic",
+      "usable": false,
+      "sellable": false,
+      "description": "A galactic lootbox with items from across the universe.",
+      "emoji": "🌠"
+    },
+    "307":{
+      "name": "Universal Lootbox",
+      "aliases": ["universal", "u", "lootbox u"],
+      "type": "lootbox",
+      "tier": "universal",
+      "usable": false,
+      "sellable": false,
+      "description": "A universal lootbox containing items of unimaginable power.",
+      "emoji": "🪐"
+    }
+  },
+  "warpdrives": {
+    "501": {
+      "name": "warpdrive_mk1",
+      "aliases": ["warp1", "drive1", "wd1"],
+      "type": "warpdrive",
+      "usable": false,
+      "sellable": false,
+      "description": "A warpdrive allowing travel to Planet 2.",
+      "target_planet": 2
+    },
+    "502": {
+      "name": "warpdrive_mk2",
+      "aliases": ["warp2", "drive2", "wd2"],
+      "type": "warpdrive",
+      "usable": false,
+      "sellable": false,
+      "description": "A warpdrive allowing travel to Planet 3.",
+      "target_planet": 3
+    },
+    "503": {
+      "name": "warpdrive_mk3",
+      "aliases": ["warp3", "drive3", "wd3"],
+      "type": "warpdrive",
+      "usable": false,
+      "sellable": false,
+      "description": "A warpdrive allowing travel to Planet 4.",
+      "target_planet": 4
+    },
+    "504":{
+      "name": "warpdrive_mk4",
+      "aliases": ["warp4", "drive4", "wd4"],
+      "type": "warpdrive",
+      "usable": false,
+      "sellable": false,
+      "description": "A warpdrive allowing travel to Planet 5.",
+      "target_planet": 5
+    },
+    "505":{
+      "name": "warpdrive_mk5",
+      "aliases": ["warp5", "drive5", "wd5"],
+      "type": "warpdrive",
+      "usable": false,
+      "sellable": false,
+      "description": "A warpdrive allowing travel to Planet 6.",
+      "target_planet": 6
+    },
+    "506":{
+      "name": "warpdrive_mk6",
+      "aliases": ["warp6", "drive6", "wd6"],
+      "type": "warpdrive",
+      "usable": false,
+      "sellable": false,
+      "description": "A warpdrive allowing travel to Planet 7.",
+      "target_planet": 7
+    },
+    "507":{
+      "name": "warpdrive_mk7",
+      "aliases": ["warp7", "drive7", "wd7"],
+      "type": "warpdrive",
+      "usable": false,
+      "sellable": false,
+      "description": "A warpdrive allowing travel to Planet 8.",
+      "target_planet": 8
+    },
+    "508":{
+      "name": "warpdrive_mk8",
+      "aliases": ["warp8", "drive8", "wd8"],
+      "type": "warpdrive",
+      "usable": false,
+      "sellable": false,
+      "description": "A warpdrive allowing travel to Planet 9.",
+      "target_planet": 9
+    },
+    "509":{
+      "name": "warpdrive_mk9",
+      "aliases": ["warp9", "drive9", "wd9"],
+      "type": "warpdrive",
+      "usable": false,
+      "sellable": false,
+      "description": "A warpdrive allowing travel to Planet 10.",
+      "target_planet": 10
+    },
+    "510":{
+      "name": "warpdrive_mk10",
+      "aliases": ["warp10", "drive10", "wd10"],
+      "type": "warpdrive",
+      "usable": false,
+      "sellable": false,
+      "description": "A warpdrive allowing travel to the next Sector.",
+      "target_planet": 11
+    },
+    "511":{
+      "name": "ftl_drive",
+      "aliases": ["ftl", "ftldrive"],
+      "type": "warpdrive",
+      "usable": true,
+      "sellable": false,
+      "description": "A faster-than-light drive allowing travel to the next Sector.",
+      "target_planet": 11
+    }
+  },
+  "ships": {
+    "starter_ship": {
+      "name": "Ship",
+      "aliases": ["starter", "basic ship", "ship"],
+      "type": "ship",
+      "usable": false,
+      "sellable": false,
+      "description": "A certified, pre-owned ship your uncle found in a scrapyard.",
+      "value": 500
+    }
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "1": {
+    "name": "Terra",
+    "level_requirement": 1,
+    "boss": "Crawler King",
+    "boss_id": "crawler_king",
+    "requirements": ["Plasteel Blade", "Plasteel Spacesuit"],
+    "scrap_mult": 1.0,
+    "xp_mult": 1.0,
+    "materials_mult": 1.0,
+    "rarity_bias": { "common": 1.0, "uncommon": 0.5, "rare": 0.1, "mythic": 0.01, "legendary": 0.001 },
+    "description": "The home planet of humanity, filled with diverse biomes and life forms."
+  },
+  "2": {
+    "name": "Luna",
+    "level_requirement": 5,
+    "boss": "Crawler Queen",
+    "boss_id": "crawler_queen",
+    "requirements": ["Plasteel Blade", "Plasteel Spacesuit"],
+    "scrap_mult": 3.0,
+    "xp_mult": 2.0,
+    "materials_mult": 1.5,
+    "rarity_bias": { "common": 0.95, "uncommon": 1.0, "rare": 0.8 },
+    "description": "Earth's moon, a barren world with hidden secrets beneath its surface."
+  },
+  "3": {
+    "name": "Bayou",
+    "level_requirement": 10,
+    "boss": "Don Slimeyoni",
+    "boss_id": "don_slimeyoni",
+    "requirements": ["Circuit Whip", "Circuit Harness"],
+    "scrap_mult": 5.0,
+    "xp_mult": 3.0,
+    "materials_mult": 2.0,
+    "rarity_bias": { "common": 0.9, "uncommon": 1.1, "rare": 1.0 },
+    "description": "A murky, swampy planet teeming with strange flora and fauna."
+  },
+  "4": {
+    "name": "Frogstar World B",
+    "level_requirement": 15,
+    "boss": "The Sluggitive",
+    "boss_id": "the_sluggitive",
+    "requirements": ["Circuit Whip", "Circuit Harness"],
+    "scrap_mult": 10.0,
+    "xp_mult": 4.0,
+    "materials_mult": 2.5,
+    "rarity_bias": { "common": 0.85, "uncommon": 1.2, "rare": 1.1 },
+    "description": "A once happy, prosperous planet now overrun by the hostile slug mafia, led here by The Sluggitive, the cause of the Shoe Event Horizon which plunged the planet into poverty."
+  },
+  "5": {
+    "name": "The Floating Gardens",
+    "level_requirement": 20,
+    "boss": "Shrubbery",
+    "boss_id": "shrubbery",
+    "requirements": ["Plasma Suit", "Plasma Cutter"],
+    "scrap_mult": 15.0,
+    "xp_mult": 5.0,
+    "materials_mult": 3.0,
+    "rarity_bias": { "common": 0.8, "uncommon": 1.3, "rare": 1.2 },
+    "description": "A planet of floating islands covered in lush vegetation and exotic wildlife."
+  },
+  "6": {
+    "name": "The Dark Forest",
+    "level_requirement": 25,
+    "boss": "Audrey III",
+    "boss_id": "audrey_iii",
+    "requirements": ["Plasma Suit", "Plasma Cutter"],
+    "scrap_mult": 20.0,
+    "xp_mult": 6.0,
+    "materials_mult": 4.0,
+    "rarity_bias": { "common": 0.7, "uncommon": 1.4, "rare": 1.3 },
+    "description": "A shadowy world where the trees are alive and the darkness is palpable."
+  },
+  "7": {
+    "name": "Downtown Battle Mountain",
+    "level_requirement": 30,
+    "boss": "Rock Solid",
+    "boss_id": "rock_solid",
+    "requirements": ["Quartzite Kevlar", "Sharder"],
+    "scrap_mult": 25.0,
+    "xp_mult": 7.0,
+    "materials_mult": 5.0,
+    "rarity_bias": { "common": 0.6, "uncommon": 1.5, "rare": 1.4 },
+    "description": "A rocky, mountainous planet with treacherous terrain and hidden caves."
+  },
+  "8": {
+    "name": "The Glass Diamond",
+    "level_requirement": 35,
+    "boss": "Eternal Crystalloid",
+    "boss_id": "eternal_crystalloid",
+    "requirements": ["Quartzite Kevlar", "Sharder"],
+    "scrap_mult": 35.0,
+    "xp_mult": 8.0,
+    "materials_mult": 7.0,
+    "rarity_bias": { "common": 0.5, "uncommon": 1.6, "rare": 1.5 },
+    "description": "A dazzling world made entirely of crystal and glass, reflecting light in mesmerizing patterns."
+  },
+  "9": {
+    "name": "Trisolaris",
+    "level_requirement": 40,
+    "boss": "The Battery",
+    "boss_id": "the_battery",
+    "requirements": ["Iridium Overalls", "Spline Reticulator"],
+    "scrap_mult": 50.0,
+    "xp_mult": 9.0,
+    "materials_mult": 9.0,
+    "rarity_bias": { "common": 0.4, "uncommon": 1.7, "rare": 1.6 },
+    "description": "A planet in turmoil, orbiting three suns and experiencing extreme climate changes."
+  },
+  "10": {
+    "name": "Lithium Arcade",
+    "level_requirement": 50,
+    "boss": "Deep Thought",
+    "boss_id": "deep_thought",
+    "requirements": ["Quantum Protectenator", "Quantum Mechanator"],
+    "scrap_mult": 100.0,
+    "xp_mult": 10.0,
+    "materials_mult": 10.0,
+    "rarity_bias": { "common": 0.3, "uncommon": 1.8, "rare": 1.8 },
+    "description": "A vibrant, neon-lit world reminiscent of classic arcade games."
+  }
+}
