@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 def update_quest_progress_for_materials(player: Dict, item_id: str, qty: int) -> bool:
     """
@@ -139,3 +139,34 @@ def update_quest_progress_for_crafting(player: Dict, crafted_item_id: str, qty: 
         quest["completed"] = True
     player["active_quest"] = quest
     return bool(quest.get("completed", False))
+
+
+def craft_progress_line_if_applicable(player: Dict, crafted_item_id: str) -> Optional[str]:
+    """
+    If the active quest is a craft_material quest that targets the given crafted_item_id,
+    return a short one-line progress string like:
+      "Quest: Craft <name> — 3/10" or "Quest: Craft <name> — 10/10 ✅".
+    Otherwise return None.
+    """
+    quest = player.get("active_quest") or {}
+    if str(quest.get("type", "")).lower() != "craft_material":
+        return None
+
+    target = (quest.get("target_item_id")
+              or quest.get("recipe_id")
+              or quest.get("target"))
+    if not target:
+        return None
+
+    if str(crafted_item_id) != str(target):
+        return None
+
+    name = (quest.get("target_name")
+            or quest.get("material_name")
+            or quest.get("name")
+            or str(target))
+    prog = int(quest.get("progress", 0) or 0)
+    goal = int(quest.get("goal", 0) or 1)
+    done = bool(quest.get("completed", False))
+    badge = " ✅" if done else ""
+    return f"Quest: Craft {name} — {prog}/{goal}{badge}"

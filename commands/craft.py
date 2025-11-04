@@ -6,7 +6,7 @@ from core.shared import load_json
 from core.constants import CRAFTING_FILE, ITEMS_FILE
 from core.players import save_profile
 from core.guards import set_lock, clear_lock, require_no_lock
-from core.quest_progress import update_quest_progress_for_crafting
+from core.quest_progress import update_quest_progress_for_crafting, craft_progress_line_if_applicable
 from math import floor
 from core.skills_hooks import crafter_effects, award_skill
 from systems.crafting import crafter_xp_for_product
@@ -188,7 +188,7 @@ class Craft(commands.Cog):
         player["inventory"] = inventory
 
         # Update craft quest progress (if active and matches)
-        update_quest_progress_for_crafting(player, str(output_id), int(output_qty))
+        quest_completed = update_quest_progress_for_crafting(player, str(output_id), int(output_qty))
 
         # --- Award Crafter skill XP (per product unit, times quantity crafted) ---
         per_item_xp = crafter_xp_for_product(output_id, recipe.get("name"))
@@ -204,6 +204,10 @@ class Craft(commands.Cog):
             extras.append(f"Refunded: {', '.join(refunded_summary)}")
         if total_xp > 0:
             extras.append(f"Crafter +{total_xp} XP" + (f" (L{new_lvl} +{ups})" if ups > 0 else ""))
+        # Append quest progress line if this craft advanced an active craft quest
+        qline = craft_progress_line_if_applicable(player, str(output_id))
+        if qline:
+            extras.append(qline)
         tail = " • " + " • ".join(extras) if extras else ""
         await ctx.send(f"{ctx.author.mention} ✅ Crafted **{amount_to_craft}x {recipe.get('name', recipe_key)}** (x{output_qty} output)!{tail}")
 
