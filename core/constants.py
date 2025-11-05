@@ -1,23 +1,30 @@
 import os
 
-# Root data directory (assuming a /data folder at the root of your bot project)
+"""
+Data directories
+- DATA_DIR: packaged, read-only defaults (items.json, planets.json, etc.)
+- RUNTIME_DATA_DIR: writable location for runtime state (players.json, cooldowns.json, raids.json)
+    Can be overridden via env var RUNTIME_DATA_DIR (e.g., when mounting a volume in production).
+"""
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
+RUNTIME_DATA_DIR = os.getenv("RUNTIME_DATA_DIR", DATA_DIR)
 
 # === JSON FILES ===
-PLAYERS_FILE = os.path.join(DATA_DIR, "players.json")
+PLAYERS_FILE = os.path.join(RUNTIME_DATA_DIR, "players.json")
 ITEMS_FILE = os.path.join(DATA_DIR, "items.json")
 SHOP_FILE = os.path.join(DATA_DIR, "shop.json")
 PLANETS_FILE = os.path.join(DATA_DIR, "planets.json")
 BOSSES_FILE = os.path.join(DATA_DIR, "bosses.json")
 ENEMIES_FILE = os.path.join(DATA_DIR, "enemies.json")
-COOLDOWNS_FILE = os.path.join(DATA_DIR, "cooldowns.json")
+COOLDOWNS_FILE = os.path.join(RUNTIME_DATA_DIR, "cooldowns.json")
 CRAFTING_FILE = os.path.join(DATA_DIR, "crafting.json")
 LOOTBOXES_FILE = os.path.join(DATA_DIR, "lootbox.json")
 RESEARCH_FILE = os.path.join(DATA_DIR, "research.json")
 CODES_FILE = os.path.join(DATA_DIR, "codes.json")
 CREDITSHOP_FILE = os.path.join(DATA_DIR, "creditshop.json")
 RECIPES_FILE = os.path.join(DATA_DIR, "recipes.json")
+RAIDS_FILE = os.path.join(RUNTIME_DATA_DIR, "raids.json")
 
 # === GAME CONSTANTS ===
 DEFAULT_HEALTH = 100

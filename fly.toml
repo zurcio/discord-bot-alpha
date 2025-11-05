@@ -1,0 +1,25 @@
+# fly.toml app configuration file
+# Docs: https://fly.io/docs/reference/configuration/
+
+app = "discord-bot-alpha"
+primary_region = "iad"  # choose your closest region
+kill_signal = "SIGINT"
+kill_timeout = "5s"
+
+[build]
+  # Uses Dockerfile in repo by default
+
+[env]
+  BOT_ENV = "prod"
+  RUNTIME_DATA_DIR = "/app/runtime"
+
+[processes]
+  app = "python bot.py"
+
+[[mounts]]
+  source = "runtime"
+  destination = "/app/runtime"
+
+[vm]
+  size = "shared-cpu-1x"
+  memory = 512

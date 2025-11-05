@@ -1,9 +1,7 @@
 # systems/raids.py
 import json, os, time, math, random
 from typing import Dict, Any, Tuple, List
-
-# Storage
-RAIDS_FILE = "data/raids.json"
+from core.constants import RAIDS_FILE
 
 def _ensure_dir(path: str):
     os.makedirs(os.path.dirname(path), exist_ok=True)
