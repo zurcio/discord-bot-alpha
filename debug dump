@@ -1,0 +1,37 @@
+# 2025-10-11 22:41:10 INFO     discord.client logging in using static token
+# Traceback (most recent call last):
+#   File "[filepath]\Documents\DiscBot\bot.py", line 77, in <module>
+#     bot.run(TOKEN)
+#   File "[filepath]\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\discord\client.py", line 929, in run
+#     asyncio.run(runner())
+#   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\lib\asyncio\runners.py", line 44, in run
+#     return loop.run_until_complete(main)
+#   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\lib\asyncio\base_events.py", line 649, in run_until_complete
+#     return future.result()
+#   File "[filepath]\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\discord\client.py", line 918, in runner
+#     await self.start(token, reconnect=reconnect)
+#   File "[filepath]\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\discord\client.py", line 847, in start
+#     await self.connect(reconnect=reconnect)
+#   File "[filepath]\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\discord\client.py", line 724, in connect
+#     self.ws = await asyncio.wait_for(coro, timeout=60.0)
+#   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\lib\asyncio\tasks.py", line 445, in wait_for
+#     return fut.result()
+#   File "[filepath]\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\discord\gateway.py", line 383, in from_client
+#     socket = await client.http.ws_connect(str(url))
+#   File "[filepath]\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\discord\http.py", line 566, in ws_connect
+#     return await self.__session.ws_connect(url, **kwargs)
+#   File "[filepath]\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\aiohttp\client.py", line 1011, in _ws_connect
+#     warnings.warn(
+# DeprecationWarning: parameter 'timeout' of type 'float' is deprecated, please use 'timeout=ClientWSTimeout(ws_close=...)'
+
+
+# [✅] Loaded commands.inventory
+# [❌] Failed to load commands.profile: Extension 'commands.profile' raised an error: ImportError: cannot import name 'get_max_health' from 'core.decorators' (DiscBot\core\decorators.py)
+# [❌] Failed to load commands.shop: Extension 'commands.shop' raised an error: ImportError: cannot import name 'with_profile' from 'core.players' (DiscBot\core\players.py)
+# [✅] Loaded commands.travel
+# [✅] Loaded commands.work
+# [✅] Loaded commands.craft
+# [❌] Failed to load commands.bossfight: Extension 'commands.bossfight' could not be loaded or found.
+# [❌] Failed to load commands.research: Extension 'commands.research' raised an error: TypeError: Command signature requires at least 1 parameter(s)
+# [❌] Failed to load commands.commands: Extension 'commands.commands' could not be loaded or found.
+# [❌] Failed to load commands.ready: Extension 'commands.ready' could not be loaded or found.

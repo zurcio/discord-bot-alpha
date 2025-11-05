@@ -1,0 +1,201 @@
+Skills system
+the Skills system tracks xp gain for various player actions and can reward bonuses
+as players gain levels in each skill.
+
+the Skills and level xp requirements are as follows: 
+Worker - xp from work commands - per level = 100+(level^2)
+Crafter - xp from crafting materials - per level = ROUND(300+(level^2)*300/100)
+Tinkerer - xp from tinkering gear - per level = ROUND(300+(level^2)*300/100)
+Trader - xp from selling items - per level = ROUND(400+(level^2)*400/100)
+Boxer - xp from opening lootboxes - per level = 100+(level^2)
+Gambler - xp from using gambling commands - per level = ROUND(50+(level^2)*50/100)
+Soldier - xp from combat victories, including scan, explore, and bossfight - per level = ROUND(500+(level^2)*500/100)
+
+reward for completing 100 levels in every category - always planet 10 multipliers, unlocked tinker system (planet 1 available), unlocked planet-gated commands (decorator on all commands for this?)
+mechanic called OVERCHARGED - when a player reaches level 100, they can !overcharge to enable OVERCHARGED
+
+leveling up past 100 in any category increases immensely - not sure yet if fully exponential or another formula required
+
+worker skill:
+increasing worker skill improves the chances of getting higher tier items from work commands (+50% at level 100)
+each level after 100 adds a chance to get another type of material from a work command at 3% per level:
+scavenge can also reward circuits
+hack can also reward plasma
+extract can also reward biofiber
+harvest can also reward plasteel
+(these will each have a unique message if/when they drop)
+
+doing work commands should provide xp per command as follows:
+    !scavenge  |!hack | !extract | !harvest 
+planet 1:  4xp | 4xp  | 4xp^     | 4xp^
+planet 2:  5xp | 5xp  | 5xp^     | 5xp^
+planet 3:  8xp | 9xp  | 8xp      | 8xp^
+planet 4:  8xp | 9xp  | 8xp      | 8xp^
+planet 5:  8xp | 9xp  | 8xp      | 8xp
+planet 6:  12xp| 13xp | 12xp     | 12xp
+planet 7:  12xp| 13xp | 12xp     | 12xp
+planet 8:  16xp| 18xp | 17xp     | 17xp
+planet 9:  16xp| 18xp | 17xp     | 17xp
+planet 10: 16xp| 18xp | 17xp     | 17xp
+^only applicable if all skills have reached level 100 (OVERCHARGED) due to planet-gating
+
+crafter skill:
+increasing crafter skill increases the chances of getting 11% of the used materials back when crafting, rounded down
+each level after 100 adds to the percentage of the materials return (formula ~ 10+(11*(level-100))^.3, so rougly 12.05% at level 101, later 14.09% at level 110, etc)
+
+crafting xp as follows:
+plasteel		    circuit		            plasma		        biofiber	
+plasteel sheet	1	microchip	1	        plasma slag	2	    biopolymer	3
+plasteel bar	4	processor	4	        plasma charge 5 	bio gel	8
+plasteel beam	20	motherboard	20	        plasma core	25	    bio-metal hybrid 30
+plasteel block	50	quantum computer 50 	plasma module 70	bio-material block	80
+							
+101	plasteel blade	4		    201	plasteel spacesuit	4	
+102	circuit whip	6		    202	circuit suit	6	
+103	plasma cutter	8		    203	plasma suit	8	
+104	bio blade	10		        204	petal loincloth	10	
+105	floral flouncer	12		    205	ghillie suit	12	
+106	sharder	14		            206	quartzite kevlar	14	
+107	scrapper	16		        207	scrapsuit	16	
+108	spline reticulator	18		208	iridium overalls	18	
+109	quantum mechanator	20		209	quantum protectenator	20	
+
+
+Tinkerer skill:
+increasing tinkerer skill improves the chances of getting higher tier tinkers from !tinker
+each level after 100 increases a percentage (starting at 2% at 101, logarithmic thereafter) to receive the scrap required for tinker instead of spending it
+
+tinker xp as follows; these values should be multiplied by 100 from planet 7-9 and 1000 at planet 10:
+normal	0
+good	1
+great	2
+excellent	3
+mythic	4
+legendary	5
+molecular	6
+atomic	7
+neutronic	8
+protonic	9
+quarkic	10
+sophonic	11
+quantum	12
+
+
+Trader skill:
+increasing trader skill increases the sell price of items; ~ 5x at level 100 (need to work out a formula)
+each level after 100 continues to increase the sell price of items
+
+selling xp as follows:
+plasteel	1	    circuit	1	            plasma	5
+plasteel sheet	2	microchip	2	        plasma slag	10
+plasteel bar	25	processor	25	        plasma charge	50
+plasteel beam	50	motherboard	50	        plasma core	100
+plasteel block	100	quantum computer	100	plasma module	200
+					
+biofiber	10	        crawler tail	3		
+biopolymer	20	        slug slime	5		
+bio gel	50	            orchid bloom	7		
+bio-metal hybrid	100	crystal shard	10		
+bio-material block	200	lithium ion	15		
+
+
+Boxer skill:
+increasing boxer skill increases lootbox drop chance (some formula, probably no more than +5% at level 100)
+each level after 100 increases the lootbox drop _amount_ by 1;  given the large benefit here, levels should be harder to get after 100 than other skills
+
+opening lootboxes awards boxer xp as follows:
+common: 4
+uncommon: 8
+rare: 16
+mythic: 32
+legendary: 50
+solar: 750
+galactic: 12000
+universal: 142000
+
+
+Gambler skill:
+increasing gambler skill increases the bank xp bonus - need to work out a formula, but should be fairly small (no more than ~1.5% at level 100)
+each level after 100 will add an interest rate to the bank - .5% per level, compounding daily (calc can be run at 0UTC each day)
+
+gambler xp can be earned via winnings in the gambling commands
+roulette win: 5xp
+race win: 25xp
+slots win: 5xp
+
+
+Soldier skill:
+increasing soldier skill reduces the cost of upgrading one's ship
+each level after 100 increases the max ship level by 1
+
+soldier xp earned through combat victories and as below:
+	enemy		
+planet	    scan	explore	    boss
+planet 1	1	    2	        50
+planet 2	2	    4	        100
+planet 3	3	    6	        150
+planet 4	4	    8	        200
+planet 5	5	    10	        250
+planet 6	6	    12	        300
+planet 7	7	    14	        350
+planet 8	8	    16	        400
+planet 9	9	    18	        450
+planet 10	10	    20	        500
+
+
+---- START HERE ----
+
+initial notes: (if i don't specifically address something, assume i agree with its implementation)
+regarding: Post-100 scale: multiply req by scale = (1 + 0.08*(L-100))^1.2 per-skill (suggested; tunable). Keeps progress slower after 100.: level up after level 100 should be significantly slower; it should be nearly double the total xp needed to reach 100 for each level thereafter. this will prevent runaway for all skills.
+!skills should also allow for !skills <skill> for a more thorough explanation of each skill with its progress and perk
+OVERCHARGE should be what unlocks leveling past 100 for any skill
+Worker: 
+"Post-100 cross-material bonus: if overcharged and lvl > 100, extra-roll chance = min(0.03*(lvl-100), 0.75). On success, award 1 extra material from the “next family” (cyclic: plasteel→circuit→plasma→biofiber→plasteel) respecting planet gating, or defer to current family if gated."
+    - ignore planet gating if player is OVERCHARGED
+Crafter:
+"Material refund chance: at lvl 100 = 11%. For lvl > 100: refund_pct = 10 + (11*(lvl-100))^0.3 (capped at 35% suggested). Roll once per input material, refund floor(qty_used * pct)."
+    - just clarifying for myself if i'm misunderstanding, but the roll should be for the craft in total, refunding the floor % of materials for each one spent
+Tinkerer:
+"Scrap refund on tinker (post-100): chance_refund = min(0.02*ln(1+(lvl-100)), 0.25). If success, do not deduct Scrap cost."
+    - not just 'do not deduct' but indeed pay the player the scrap instead; it's a fun bonus
+Boxer:
+"Apply multiplicatively to combat.py BASE_LOOTBOX_CHANCE via derive_ship_effects or a skills overlay."
+    - don't use the ship effects, keep that clean. we should add another variable for boxer skill effects
+"Post-100 extra crates: recommend gating to +1 crate every 10 levels after 100, up to +5 at 150 (instead of +1 per level which explodes). e.g., extra = min((lvl-100)//10, 5)."
+    - as stated above, leveling past 100 should be significantly slower to reduce exploding reward; however, i would perhaps change it to +1 lootbox per 2 levels, starting at 101 (so +1 at 101, +2 at 103, etc)
+Gambler:
+"Post-100 daily interest: +0.5% per level above 100, applied to banked Scrap daily at 00:00 UTC. interest_rate = 0.005*(lvl-100). Cap at 10% suggested. Requires a daily cron/tick."
+    - even with the suggested change to leveling past 100, i agree with a 10% cap - that would only happen at level 120(?) anyway. 
+
+Open Questions & Answers:
+1. Worker cross-material post-100: should Overcharged be required, or any Worker lvl>100 is enough?
+    - as stated above, we should enforce Overcharged for leveling past 100. we can make the skills appear as x/100 levels until a player overcharges, then simply list the level per skill
+2. Worker “higher tier items” definition: do your work commands have T2/T3/T4 weighting we can scale? If not, should we implement a small chance to upgrade outputs to the next tier?
+    - work commands do have a scale in work_sys.py - with our convention of common, uncommon, rare, mythic, legendary, with base weight values for each
+3. Crafter refund: refund per input line item (floor) okay, or should it pool by family then round?
+    - as stated above, the roll should be for the craft, the refund should be for every item used in the craft to the floor %
+4. Tinkerer scrap refund: is the logarithmic chance proposal acceptable? Target cap 25% okay?
+    - just the slightest tweak for a better starting percentage: chance_refund = min(0.02*ln(1.2+(lvl-100)), 0.25).
+5. Trader boost: 5x sell price at lvl 100 is large. Keep as-is, or lower to ~3x? Max cap 8x acceptable?
+    - sure, lower to ~3x
+6. Boxer extra crates post-100: switch from +1 per level to +1 per 10 levels (max +5) to prevent runaway. Acceptable?
+    - as stated above, with leveling past 100 being significantly harder/longer, runaway should be less of an issue, but acceptable to give +1 every two levels starting with 101 (+1 at 101, +2 at 103, etc.)
+7. Gambler daily interest: confirm a bank system exists and its storage. Should interest apply to entire balance or capped? Any anti-abuse?
+    - if you could point to how this could be abused, i can't imagine myself, but we can consider options for anti-abuse. interest could be capped to the first 1B scrap, and I can tweak that later if needed
+8. Soldier ship upgrade reduction: target -30% at lvl100; cap -50%. Acceptable?
+    - acceptable
+9. Soldier max ship level bonus: unlimited with lvl, or cap? If capped, to what?
+    - as stated above, increasing leveling past 100 significantly will prevent runaway, so no cap necessary
+10. Overcharged: toggle off/on? Any cost/cooldown to enable? Any drawbacks we should implement?
+    - no toggle; permanently enabled once enabled, no cooldown necessary. no drawbacks.
+11. UI: okay to add !skills and embed progress bars? Any other places you want to surface perks?
+    - yes to add and yes to progress bars, and as stated above we should also implement per-skill commands with !skill <specific skill> to give more info to the player
+12. XP sources: should Trader award XP on both buy and sell (notes say both)? Any exclusions (e.g., buying keycards/ships)?
+    - trader xp should apply only to selling. I forgot to remove "buying" after brainstorming the skills. xp should apply only to what i listed in the notes with xp values
+13. Crafting XP mapping: store in crafting.json per recipe (xp field), or hardcode table as utility? Preference?
+    - probably cleaner to hardcode a table rather than go through the crafting table, makes for easier adjustment later for this system
+14. Planet gating override with Overcharged: enable tinker/extract/harvest at planet 1 always, correct?
+    - yes; essentially, any command that has the "requires_planet(x)" decorator, that would be overridden by Overcharged. Also for clarity, I want Overcharged to apply the planet 10 multipliers for materials, rarity bias, and tinker regardless of player planet/max planet.
+15. Any skills you want to gate behind permissions or guilds?
+    - no gating to skills; players should be earning xp for all skills from the get-go
+

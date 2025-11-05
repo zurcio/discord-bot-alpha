@@ -1,0 +1,65 @@
+Ships
+
+Players can purchase a starter [ship] from the shop (!buy ship - will add to shop & buy commands)
+Ships will have ten tiers (mk1-10) which players can achieve through a command 
+Ships will have levels that boost the benefits offered by having a ship
+Player will be required to have a ship to !travel (so must purchase in planet 1)
+
+ships will offer various bonuses to gameplay:
+1. from mk6+, the ship overrides the requirement for a keycard for !bossfight
+2. from mk5+, the ship has a "life support module" that prevents player death (HP always stops at 1 on combat loss)
+3. from mk4+, the chance to find lootboxes increases (lootbox_mult)
+4. from mk8+, the drop chance for mobs in !scan and !explore increases (drop_chance_mult)
+5. from mk7+, the chance to find crew through various commands increases (we haven't implemented this system; still brainstorming it - just need a placeholder attribute & multiplier in ships)
+6. from mk1+, the rewards in daily/weekly are increased (rewards_mult)
+
+!ship will show the players' ship, type, tier, and the related stat and mechanic bonuses offered
+
+players can spend scrap to level up the ship
+!ship upgrade
+ships will go up to level 100, with greatly increasing scrap cost per level, in a parabolic fashion (very low cost, low increase at first, then around level 50, increase exponentially. cost may scale upwards of 16 billion scrap for the last few levels)
+this will need to be affected by a later game system - like "skills" or "professions" that will give players bonuses for earning alternate forms of xp for various tasks, in this case lowering the cost of upgrading ship level
+
+
+there will be a command to attempt to tier up a player's ship.
+thematically, i'd like to figure out a way for the command to make sense for two players to have to do it together:
+!ship [command] <other_player>
+both players should have the same tier ship; different levels will be averaged, such that if one player has a level 8 ship and the other has a level 12 ship, they would both end up with a level 10 ship. 
+while the game is new, however, and we don't have many players, we either need to allow players to do this command with different tier ships (only allowing tier up to the lower tier) or allow players to do it solo at a penalty to the probability of tiering up
+
+below is a table for the probabilities of reaching the next tier when using this command:
+
+tier | probability of tier up |	max attempts
+mk1	    100	    1
+mk2	    50	    2
+mk3	    25	    5
+mk4	    10	    12
+mk5	    5	    24
+mk6	    2	    60
+mk7	    1	    120
+mk8	    0.33	364
+mk9	    0.1	    1200
+mk10	n/a	    n/a
+
+this command will also apply a "type" attribute to the players' ships.
+types will have a name and associated specific boost to the player's stats or chances:
+types	        type boost
+frigate	        attack
+monitor	        defense
+dreadnought	    hp
+freighter	    scrap gain
+outrider	    tinker boost
+
+these type boosts are affected by the levels upgraded above.
+the below table shows roughly what the bonuses should be at level 1 ship and level 100 ship (level 100 not filled out as a formula needs to be determined for how to scale the bonuses non-linearly - favoring higher tiers for better boost)
+tier	type boost at level 1	type boost at level 100
+mk1	    0.10%	1.00%
+mk2	    0.12%	
+mk3 	0.14%	
+mk4 	0.16%	
+mk5 	0.18%	
+mk6 	0.20%	
+mk7	    0.22%	
+mk8	    0.24%	
+mk9	    0.26%	
+mk10	0.28%	28%
