@@ -68,3 +68,84 @@ def make_progress_bar(current, total, length=20):
     filled = int(length * current // total) if total > 0 else 0
     empty = length - filled
     return "█" * filled + "─" * empty
+
+def parse_amount(arg: str | None, available: int) -> int:
+    """
+    Parse amount string with support for:
+    - 'all' - returns available
+    - 'half' - returns available // 2
+    - Numbers with K/M/B suffixes (e.g., '1.5m', '500k', '2b')
+    - Plain numbers (with or without commas)
+    
+    Returns clamped value between 0 and available.
+    """
+    if not arg:
+        return 0
+    
+    t = str(arg).lower().strip()
+    
+    # Special keywords
+    if t == "all":
+        return int(available)
+    if t == "half":
+        return max(1, int(available // 2))
+    
+    # Parse with K/M/B suffixes
+    multiplier = 1
+    if t.endswith('k'):
+        multiplier = 1_000
+        t = t[:-1]
+    elif t.endswith('m'):
+        multiplier = 1_000_000
+        t = t[:-1]
+    elif t.endswith('b'):
+        multiplier = 1_000_000_000
+        t = t[:-1]
+    
+    try:
+        # Remove commas and parse as float (to handle decimals like 1.5m)
+        n = float(t.replace(",", ""))
+        result = int(n * multiplier)
+    except (ValueError, Exception):
+        return 0
+    
+    return max(0, min(result, int(available)))
+
+def parse_float_amount(arg: str | None, available: float) -> float:
+    """
+    Parse float amount string with support for K/M/B suffixes.
+    Used for commodity trading where fractional units are allowed.
+    
+    Returns clamped value between 0.0 and available.
+    """
+    if not arg:
+        return 0.0
+    
+    t = str(arg).lower().strip()
+    
+    # Special keywords
+    if t == "all":
+        return float(available)
+    if t == "half":
+        return max(0.0, float(available) / 2.0)
+    
+    # Parse with K/M/B suffixes
+    multiplier = 1.0
+    if t.endswith('k'):
+        multiplier = 1_000.0
+        t = t[:-1]
+    elif t.endswith('m'):
+        multiplier = 1_000_000.0
+        t = t[:-1]
+    elif t.endswith('b'):
+        multiplier = 1_000_000_000.0
+        t = t[:-1]
+    
+    try:
+        # Remove commas and parse as float
+        n = float(t.replace(",", ""))
+        result = n * multiplier
+    except (ValueError, Exception):
+        return 0.0
+    
+    return max(0.0, min(result, float(available)))

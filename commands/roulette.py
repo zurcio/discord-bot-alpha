@@ -6,6 +6,7 @@ from core.players import save_profile
 from core.guards import require_no_lock
 from core.quest_progress import update_quest_progress_for_gambling 
 from core.skills_hooks import award_skill
+from core.utils import parse_amount
 
 
 class Roulette(commands.Cog):
@@ -42,19 +43,14 @@ class Roulette(commands.Cog):
                 "• `even` / `odd` → 2x payout (48% win chance)\n"
                 "• `0-36` (number) → 36x payout (2.7% win chance)\n\n"
                 "Example: `!roulette red 100`\n"
-                "You can also bet `all` or `half` your Scrap.\n"
+                "You can also bet `all`, `half`, or use suffixes like '1m', '500k'.\n"
                 f"Your current balance: **{scrap:,} Scrap**"
             )
             return
 
-        if bet_amount:
-            if bet_amount.isdigit():
-                bet_amount = int(bet_amount)
-            elif bet_amount and bet_amount.lower() == "all":
-                bet_amount = scrap
-            elif bet_amount and bet_amount.lower() == "half":
-                bet_amount = scrap // 2
-        else:
+        bet_amount = parse_amount(bet_amount, scrap) if bet_amount else 0
+        
+        if not bet_amount or bet_amount <= 0:
             await ctx.send(
                 "🎰 **Roulette Instructions:**\n"
                 "`!roulette <bet_type> <amount>`\n\n"
@@ -63,7 +59,7 @@ class Roulette(commands.Cog):
                 "• `even` / `odd` → 2x payout (48% win chance)\n"
                 "• `0-36` (number) → 36x payout (2.7% win chance)\n\n"
                 "Example: `!roulette red 100`\n"
-                "You can also bet `all` or `half` your Scrap.\n"
+                "You can also bet `all`, `half`, or use suffixes like '1m', '500k'.\n"
                 f"Your current balance: **{scrap:,} Scrap**"
             )
             return

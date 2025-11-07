@@ -4,6 +4,7 @@ from discord.ext import commands
 from core.decorators import requires_profile
 from core.guards import require_no_lock, set_lock, clear_lock
 from core.players import load_profile, save_profile, get_scrap, set_scrap
+from core.utils import parse_float_amount
 from systems.commodities import get_quote
 
 BASES = {"plasteel", "circuit", "plasma", "biofiber"}
@@ -47,18 +48,13 @@ class Market(commands.Cog):
                 await ctx.send("You have no Scrap.")
                 return
 
-            if amount.lower() == "all":
-                units = scrap_snap / (price * (1.0 + FEE_RATE))
-                units = max(0.0, round(units, 4))
-            else:
-                try:
-                    units = float(amount)
-                except ValueError:
-                    await ctx.send("Amount must be a number or 'all'.")
-                    return
-                if units <= 0:
-                    await ctx.send("Amount must be positive.")
-                    return
+            # Calculate max affordable units for validation
+            max_units = scrap_snap / (price * (1.0 + FEE_RATE))
+            units = parse_float_amount(amount, max_units)
+            
+            if units <= 0:
+                await ctx.send("Amount must be positive. Use a number, 'all', 'half', or suffixes like '1.5m', '500k'.")
+                return
 
             gross = units * price
             fee = gross * FEE_RATE
@@ -124,18 +120,11 @@ class Market(commands.Cog):
                 await ctx.send(f"You hold no {base}.")
                 return
 
-            if amount.lower() == "all":
-                units = held
-            else:
-                try:
-                    units = float(amount)
-                except ValueError:
-                    await ctx.send("Amount must be a number or 'all'.")
-                    return
-                if units <= 0:
-                    await ctx.send("Amount must be positive.")
-                    return
-                units = min(units, held)
+            units = parse_float_amount(amount, held)
+            
+            if units <= 0:
+                await ctx.send("Amount must be positive. Use a number, 'all', 'half', or suffixes like '1.5m', '500k'.")
+                return
 
             gross = units * price
             fee = gross * FEE_RATE

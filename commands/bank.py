@@ -3,21 +3,8 @@ from discord.ext import commands
 from core.decorators import requires_profile
 from core.players import save_profile
 from core.guards import require_no_lock
-from core.bank import ensure_bank, compute_bank_boost_percent, bank_xp_multiplier, maybe_apply_daily_interest  # CHANGED
-
-def _parse_amount(arg: str | None, available: int) -> int:
-    if not arg:
-        return 0
-    t = str(arg).lower()
-    if t == "all":
-        return int(available)
-    if t == "half":
-        return max(1, int(available // 2))
-    try:
-        n = int(t.replace(",", ""))
-    except Exception:
-        return 0
-    return max(0, min(n, int(available)))
+from core.bank import ensure_bank, compute_bank_boost_percent, bank_xp_multiplier, maybe_apply_daily_interest
+from core.utils import parse_amount
 
 class Bank(commands.Cog):
     def __init__(self, bot):
@@ -40,7 +27,7 @@ class Bank(commands.Cog):
             save_profile(ctx.author.id, player)
 
         available = int(player.get("Scrap", 0))
-        amt = _parse_amount(amount, available)
+        amt = parse_amount(amount, available)
         if amt <= 0:
             await ctx.send(f"{ctx.author.mention} Nothing to deposit. Usage: !deposit <number|all|half>")
             return
@@ -72,7 +59,7 @@ class Bank(commands.Cog):
             save_profile(ctx.author.id, player)
 
         available = int(bank.get("balance", 0))
-        amt = _parse_amount(amount, available)
+        amt = parse_amount(amount, available)
         if amt <= 0:
             await ctx.send(f"{ctx.author.mention} Nothing to withdraw. Usage: !withdraw <number|all|half>")
             return
