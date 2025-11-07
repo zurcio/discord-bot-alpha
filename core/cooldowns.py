@@ -1,6 +1,5 @@
 import json, os, time
-
-COOLDOWNS_FILE = "data/cooldowns.json"
+from core.constants import COOLDOWNS_FILE
 
 command_cooldowns = {
     "scan": 60,           # 1 minute
