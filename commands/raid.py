@@ -1,13 +1,13 @@
-import discord, time
+import discord, time, math
 from discord.ext import commands
 from core.guards import require_no_lock, set_lock, clear_lock
 from core.players import load_profile, save_profile
-from systems.ship_sys import ensure_ship
-from core.sector import ensure_sector, sector_bonus_multiplier
 from systems.raids import (
     load_state, save_state, charge_battery, battery_percent, can_open, open_raid,
-    get_status, is_active, attack, add_support, maybe_finalize,
-    SUPPORT_COST_PER_MIN, SUPPORT_MAX_MINUTES_STACK
+    get_status, is_active, maybe_finalize,
+    attack_personal, charge_personal_from_materials, get_personal_status,
+    charge_mega, convert_to_personal_units, convert_to_mega_units,
+    calculate_scrap_total, MEGA_WEAPON_KEYS, claim_payout
 )
 
 def _fmt_timeleft(ts: int) -> str:
@@ -41,117 +41,259 @@ class Raid(commands.Cog):
             st = get_status(state)
             if not st.get("active", False):
                 p = st["battery_percent"]
-                await ctx.send(f"⚡ Raid Battery: {p}% — charge it by playing (scan/work/research/explore).")
+                embed = discord.Embed(title="⚡ Raid Battery Charging", color=0x3498db)
+                embed.add_field(name="Progress", value=f"{p}%", inline=False)
+                embed.add_field(name="Status", value="Fill to 100% to auto-open a raid!", inline=False)
+                embed.add_field(name="How to Charge", value="Play the game! Actions like scan, work, research, and explore charge the battery.", inline=False)
+                await ctx.send(embed=embed)
                 return
+            
+            # Active raid display
             hp = st["hp"]; hp_max = st["hp_max"]
+            hp_pct = int(100 * hp / max(1, hp_max))
             tl = _fmt_timeleft(st["ends_at"])
-            lines = [f"🧟 Boss: {st['boss_name']}  HP: {hp:,}/{hp_max:,}  ⏳ {tl}", f"Group Buff: x{st['group_buff_mult']:.2f}"]
+            
+            embed = discord.Embed(title=f"🧟 {st['boss_name']}", color=0xe74c3c)
+            embed.add_field(name="Boss HP", value=f"{hp:,} / {hp_max:,} ({hp_pct}%)", inline=True)
+            embed.add_field(name="Time Remaining", value=tl, inline=True)
+            embed.add_field(name="\u200b", value="\u200b", inline=True)  # spacer
+            
+            # Personal battery status
+            pct, cd_rem = get_personal_status(state, uid)
+            if cd_rem > 0:
+                personal_status = f"{pct}% (⏳ {cd_rem//60}m cooldown)"
+            else:
+                personal_status = f"{pct}%"
+            embed.add_field(name="🔋 Your Personal Artillery", value=personal_status, inline=False)
+            
+            # Mega weapon summary
+            mega_display = []
+            for k in ["plasteel", "circuit", "plasma", "biofiber", "scrap"]:
+                if k in (st.get("mega") or {}):
+                    meta = st["mega"][k]
+                    prog = int(meta.get("progress", 0)); tgt = int(meta.get("target", 1))
+                    pctm = min(100, math.floor(100*prog/tgt))
+                    mega_display.append(f"**{MEGA_WEAPON_KEYS.get(k, k)}**: {pctm}%")
+            
+            if mega_display:
+                embed.add_field(name="🛠 Mega Weapons", value="\n".join(mega_display), inline=False)
+            
+            # Top contributors
             top = st.get("top5", [])
             if top:
-                lines.append("Top Contributors:")
+                top_text = []
                 for i, (pid, dmg) in enumerate(top, 1):
-                    tag = f"<@{pid}>"
-                    lines.append(f"{i}. {tag} — {dmg:,} dmg")
-            await ctx.send("\n".join(lines))
+                    top_text.append(f"{i}. <@{pid}> — {dmg:,} dmg")
+                embed.add_field(name="🏆 Top Contributors", value="\n".join(top_text), inline=False)
+            
+            embed.set_footer(text="Use !raid charge/attack/support to participate | !raid claim to collect rewards after raid ends")
+            await ctx.send(embed=embed)
             return
 
-        # attack
+        # attack (personal artillery)
         if sub in ("a", "attack"):
-            if len(args) < 1:
-                await ctx.send(f"{ctx.author.mention} usage: !raid attack <oxygen>")
-                return
-            try:
-                oxy = max(1, int(args[0]))
-            except Exception:
-                await ctx.send("Invalid oxygen amount.")
-                return
-
-            # Load player, ship, sector
-            prof = load_profile(uid) or {}
-            ensure_ship(prof)
-            ship = prof.get("ship", {})
-            tier = int(ship.get("tier", 1)); level = int(ship.get("level", 1))
-            sec = ensure_sector(prof)
-            sec_mult = float(sector_bonus_multiplier(sec))
-
-            # Optional: consume Oxygen if tracked on profile
-            avail_oxy = int(prof.get("Oxygen", 0))
-            if avail_oxy > 0:
-                consume = min(avail_oxy, oxy)
-                prof["Oxygen"] = avail_oxy - consume
-                save_profile(uid, prof)
-                # If not enough oxygen, still proceed with what they had
-                oxy = consume if consume > 0 else oxy
-
-            set_lock(uid, "raid_attack", allowed=set(), note="raid attack")
-            try:
-                state = load_state()
-                # Auto-finalize if ended
-                ended = maybe_finalize(state)
-                if ended:
+            # Check if this is confirmation (second call)
+            if len(args) >= 1 and args[0].lower() in ("y", "yes", "confirm"):
+                # Execute actual attack
+                set_lock(uid, "raid_attack", allowed=set(), note="raid attack")
+                try:
+                    state = load_state()
+                    ended = maybe_finalize(state)
+                    if ended:
+                        save_state(state)
+                        await ctx.send("Raid has ended. Try again later.")
+                        return
+                    if not is_active(state):
+                        await ctx.send("No active raid. Charge the global battery to open one.")
+                        return
+                    dmg, hp_after, pct_used, cd_block = attack_personal(state, uid)
                     save_state(state)
-                    await ctx.send(f"Raid has ended. Try again later.")
-                    return
-                if not is_active(state):
-                    await ctx.send("No active raid. Charge the battery with gameplay to open one.")
-                    return
-                dmg, hp_after, gmult = attack(state, uid, tier, level, sec_mult, oxy)
+                    if cd_block > 0:
+                        await ctx.send(f"⏳ Cooldown active. You can attack again in {_fmt_timeleft(int(time.time())+cd_block)}.")
+                        return
+                    if dmg <= 0:
+                        await ctx.send(f"{ctx.author.mention} Battery {pct_used}% — insufficient charge to fire.")
+                        return
+                    await ctx.send(f"🔫 {ctx.author.mention} fired at {pct_used}% charge for {dmg:,} dmg. Boss HP: {hp_after:,}.")
+                    # Check end
+                    state = load_state()
+                    ended = maybe_finalize(state)
+                    if ended:
+                        save_state(state)
+                        await self._payout_summary(ctx, ended)
+                    else:
+                        save_state(state)
+                finally:
+                    clear_lock(uid)
+                return
+            
+            # Show preview and ask for confirmation
+            state = load_state()
+            ended = maybe_finalize(state)
+            if ended:
                 save_state(state)
-                if dmg <= 0:
-                    await ctx.send(f"{ctx.author.mention} your attack had no effect.")
+                await ctx.send("Raid has ended. Try again later.")
+                return
+            if not is_active(state):
+                await ctx.send("No active raid. Charge the global battery to open one.")
+                return
+            
+            pct, cd_rem = get_personal_status(state, uid)
+            if cd_rem > 0:
+                await ctx.send(f"⏳ Cooldown active. You can charge again in {_fmt_timeleft(int(time.time())+cd_rem)}.")
+                return
+            if pct <= 0:
+                await ctx.send(f"{ctx.author.mention} Your personal battery is empty (0%). Use !raid charge to fill it first.")
+                return
+            
+            # Show confirmation prompt
+            await ctx.send(f"🔫 {ctx.author.mention} Your personal battery is at **{pct}%** charge.\n"
+                          f"Fire artillery? This will consume all charge and trigger a 1-hour cooldown.\n"
+                          f"Reply with `!raid attack yes` to confirm.")
+            return
+
+        # charge personal battery
+        if sub in ("c", "charge"):
+            if len(args) < 2:
+                await ctx.send("Usage: !raid charge <scrap|plasteel|circuit|plasma|biofiber> <amount>")
+                return
+            resource = args[0].lower().strip()
+            try:
+                amount = max(1, int(args[1]))
+            except Exception:
+                await ctx.send("Invalid amount.")
+                return
+            if resource not in ("scrap", "plasteel", "circuit", "plasma", "biofiber"):
+                await ctx.send("Invalid resource. Use scrap/plasteel/circuit/plasma/biofiber.")
+                return
+            prof = load_profile(uid) or {}
+            inv = prof.get("inventory", {}) or {}
+            total_scrap = calculate_scrap_total(prof)
+            # Check availability & deduct
+            if resource == "scrap":
+                have = int(prof.get("Scrap", 0))
+                if have < amount:
+                    await ctx.send("Not enough Scrap.")
                     return
-                await ctx.send(f"🗡️ {ctx.author.mention} dealt {dmg:,} damage (Group x{gmult:.2f}). Boss HP: {hp_after:,}.")
-                # Check end after damage
+                prof["Scrap"] = have - amount
+            else:
+                have = int(inv.get(resource, 0))
+                if have < amount:
+                    await ctx.send(f"Not enough {resource}.")
+                    return
+                inv[resource] = have - amount
+                if inv[resource] <= 0:
+                    inv.pop(resource, None)
+                prof["inventory"] = inv
+            units = convert_to_personal_units(resource, amount, total_scrap)
+            set_lock(uid, "raid_charge", allowed=set(), note="raid charge")
+            try:
                 state = load_state()
-                ended = maybe_finalize(state)
-                if ended:
-                    save_state(state)
-                    await self._payout_summary(ctx, ended)
-                else:
-                    save_state(state)
+                if not is_active(state):
+                    await ctx.send("Raid not active yet. Global battery must reach 100%.")
+                    # refund
+                    if resource == "scrap":
+                        prof["Scrap"] = int(prof.get("Scrap", 0)) + amount
+                    else:
+                        inv[resource] = int(inv.get(resource, 0)) + amount
+                        prof["inventory"] = inv
+                    save_profile(uid, prof)
+                    return
+                pct_after, cd = charge_personal_from_materials(state, uid, units)
+                if cd > 0:
+                    await ctx.send(f"⏳ Cooldown active. You can charge again in {_fmt_timeleft(int(time.time())+cd)}.")
+                    # refund
+                    if resource == "scrap":
+                        prof["Scrap"] = int(prof.get("Scrap", 0)) + amount
+                    else:
+                        inv[resource] = int(inv.get(resource, 0)) + amount
+                        prof["inventory"] = inv
+                    save_profile(uid, prof)
+                    return
+                save_state(state)
+                save_profile(uid, prof)
+                await ctx.send(f"🔋 Charged {units} units. Personal Battery now {pct_after}%.")
             finally:
                 clear_lock(uid)
             return
 
-        # support
+        # support mega weapon charge (renamed behavior)
         if sub in ("sup", "support"):
-            if len(args) < 1:
-                await ctx.send(f"{ctx.author.mention} usage: !raid support <minutes 1..{SUPPORT_MAX_MINUTES_STACK}>")
+            if len(args) < 2:
+                await ctx.send("Usage: !raid support <scrap|plasteel|circuit|plasma|biofiber> <amount>")
                 return
+            key = args[0].lower().strip()
             try:
-                mins = max(1, min(SUPPORT_MAX_MINUTES_STACK, int(args[0])))
+                amount = max(1, int(args[1]))
             except Exception:
-                await ctx.send("Invalid minutes.")
+                await ctx.send("Invalid amount.")
                 return
-
+            if key not in MEGA_WEAPON_KEYS:
+                await ctx.send("Invalid mega weapon resource key.")
+                return
             prof = load_profile(uid) or {}
-            cost = int(SUPPORT_COST_PER_MIN * mins)
-            scrap = int(prof.get("Scrap", 0))
-            if scrap < cost:
-                await ctx.send(f"{ctx.author.mention} need {cost} Scrap to fund support for {mins} min (you have {scrap}).")
-                return
-
+            inv = prof.get("inventory", {}) or {}
+            total_scrap = calculate_scrap_total(prof)
+            if key == "scrap":
+                have = int(prof.get("Scrap", 0))
+                if have < amount:
+                    await ctx.send("Not enough Scrap.")
+                    return
+                prof["Scrap"] = have - amount
+            else:
+                have = int(inv.get(key, 0))
+                if have < amount:
+                    await ctx.send(f"Not enough {key}.")
+                    return
+                inv[key] = have - amount
+                if inv[key] <= 0:
+                    inv.pop(key, None)
+                prof["inventory"] = inv
+            units = convert_to_mega_units(key, amount, total_scrap)
             set_lock(uid, "raid_support", allowed=set(), note="raid support")
             try:
                 state = load_state()
                 if not is_active(state):
-                    await ctx.send("No active raid.")
+                    await ctx.send("Raid not active yet.")
+                    # refund
+                    if key == "scrap":
+                        prof["Scrap"] = int(prof.get("Scrap", 0)) + amount
+                    else:
+                        inv[key] = int(inv.get(key, 0)) + amount
+                        prof["inventory"] = inv
+                    save_profile(uid, prof)
                     return
-                prof["Scrap"] = scrap - cost
-                save_profile(uid, prof)
-
-                add_mult, exp = add_support(state, uid, mins, note=f"Supplied fighters for {mins} min")
+                pct_after, fired, dmg, cd = charge_mega(state, uid, key, units)
+                if cd > 0:
+                    await ctx.send(f"⏳ Cooldown active. You can charge {MEGA_WEAPON_KEYS[key]} again in {_fmt_timeleft(int(time.time())+cd)}.")
+                    # refund
+                    if key == "scrap":
+                        prof["Scrap"] = int(prof.get("Scrap", 0)) + amount
+                    else:
+                        inv[key] = int(inv.get(key, 0)) + amount
+                        prof["inventory"] = inv
+                    save_profile(uid, prof)
+                    return
                 save_state(state)
-                if add_mult <= 0.0:
-                    await ctx.send("Support failed to apply.")
-                    return
-                until = _fmt_timeleft(exp)
-                await ctx.send(f"📦 {ctx.author.mention} supplied fighters: +{add_mult*100:.0f}% group damage for ~{until}.")
+                save_profile(uid, prof)
+                if fired:
+                    boss_name = state.get("active", {}).get("boss_name", "the boss")
+                    await ctx.send(f"💥 {ctx.author.mention} charged the **{MEGA_WEAPON_KEYS[key]}**! It fires at **{boss_name}** for {dmg:,} damage!")
+                    # Check raid end
+                    state = load_state()
+                    ended = maybe_finalize(state)
+                    if ended:
+                        save_state(state)
+                        await self._payout_summary(ctx, ended)
+                    else:
+                        save_state(state)
+                else:
+                    await ctx.send(f"🛠 Charged {units} units. {MEGA_WEAPON_KEYS[key]} now {pct_after}%.")
             finally:
                 clear_lock(uid)
             return
 
-        # owner-only open (force when battery full)
+        # Manual open retained for owner (fallback / testing)
         if sub in ("o", "open"):
             if not await self.bot.is_owner(ctx.author):
                 await ctx.send("Owner only.")
@@ -162,7 +304,7 @@ class Raid(commands.Cog):
                 return
             ok = open_raid(state, boss_name="World Eater")
             save_state(state)
-            await ctx.send("⚔️ Raid opened for 48h. Use !raid attack and !raid support.")
+            await ctx.send("⚔️ Raid opened manually. Use !raid attack / charge / support.")
             return
 
         # leaderboard (active)
@@ -182,7 +324,28 @@ class Raid(commands.Cog):
             await ctx.send("\n".join(lines))
             return
 
-        await ctx.send("Usage: !raid status | !raid attack <oxygen> | !raid support <minutes> | !raid leaderboard")
+        # claim rewards
+        if sub in ("claim", "cl"):
+            state = load_state()
+            amt, summary = claim_payout(state, uid)
+            save_state(state)
+            if not summary:
+                await ctx.send("No completed raid to claim from.")
+                return
+            if amt <= 0:
+                if str(uid) in summary.get("claimed", []):
+                    await ctx.send("Rewards already claimed.")
+                else:
+                    await ctx.send("You earned no rewards this raid.")
+                return
+            # apply payout
+            prof = load_profile(uid) or {}
+            prof["Scrap"] = int(prof.get("Scrap", 0)) + amt
+            save_profile(uid, prof)
+            await ctx.send(f"✅ Claimed {amt:,} Scrap from raid {summary.get('raid_id')}.")
+            return
+
+        await ctx.send("Usage: !raid status | !raid charge <res> <amt> | !raid attack | !raid support <res> <amt> | !raid leaderboard | !raid claim")
 
     async def _payout_summary(self, ctx, summary: dict):
         title = "🏁 Raid Finished — Victory!" if summary.get("success") else "⏳ Raid Ended"
@@ -196,11 +359,7 @@ class Raid(commands.Cog):
             display = sorted(payouts.items(), key=lambda kv: -kv[1])[:10]
             for uid, amt in display:
                 lines.append(f"• <@{uid}> +{amt:,} Scrap")
-            # Apply payouts to profiles
-            for uid, amt in payouts.items():
-                prof = load_profile(str(uid)) or {}
-                prof["Scrap"] = int(prof.get("Scrap", 0)) + int(amt)
-                save_profile(str(uid), prof)
+            # Payouts now claimed via !raid claim (do not auto apply here)
         await ctx.send("\n".join(lines))
 
 async def setup(bot):

@@ -12,9 +12,15 @@ data/players.json
 data/cooldowns.json
 data/raids.json
 
-# Developer notes/scratch (optional)
-notes/
-crew notes/
-debug dump/
-ship system notes/
-skill system notes/
+# Developer notes/scratch files
+bossfightsim.py
+botbu.py
+lootboxsim.py
+dev_help.py
+notes
+crew notes
+debug dump
+ship system notes
+skill system notes
+raidnotes
+
