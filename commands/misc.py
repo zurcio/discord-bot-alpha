@@ -47,16 +47,16 @@ class Misc(commands.Cog):
                         lines.append(f"   ✅ {work_display} — ready!")
                     continue
 
-                # SPECIAL: show lootbox cooldown as 'buy lootbox' even though there is no command
-                if cmd_name == "lootbox" and "lootbox" not in shown_special:
-                    shown_special.add("lootbox")
-                    cooldown_expires = get_cooldown(user_id, "lootbox")
+                # SPECIAL: show supply crate cooldown as 'buy supply crate' even though there is no command
+                if cmd_name == "supply_crate" and "supply_crate" not in shown_special:
+                    shown_special.add("supply_crate")
+                    cooldown_expires = get_cooldown(user_id, "supply_crate")
                     if now < cooldown_expires:
                         remaining = cooldown_expires - now
                         td = str(timedelta(seconds=math.ceil(remaining)))
-                        cooldown_cmds.append(f"🕒 `buy lootbox` — cooldown: {td}")
+                        cooldown_cmds.append(f"🕒 `buy supply crate` — cooldown: {td}")
                     else:
-                        cooldown_cmds.append(f"✅ `buy lootbox` — ready!")
+                        cooldown_cmds.append(f"✅ `buy supply crate` — ready!")
                     continue
 
                 cmd = self.bot.get_command(cmd_name)
@@ -106,11 +106,11 @@ class Misc(commands.Cog):
                     ready_lines.append(f"   🚀 {work_display}")
                 continue
 
-            # SPECIAL: lootbox pseudo-command readiness as 'buy lootbox'
-            if cmd_name == "lootbox":
-                cooldown_expires = get_cooldown(user_id, "lootbox")
+            # SPECIAL: supply crate pseudo-command readiness as 'buy supply crate'
+            if cmd_name == "supply_crate":
+                cooldown_expires = get_cooldown(user_id, "supply_crate")
                 if now >= cooldown_expires:
-                    ready_lines.append("   🚀 `buy lootbox`")
+                    ready_lines.append("   🚀 `buy supply crate`")
                 continue
 
             cmd = self.bot.get_command(cmd_name)

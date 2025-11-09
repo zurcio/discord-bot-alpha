@@ -52,7 +52,7 @@ class Inventory(commands.Cog):
     @requires_profile()
     @require_no_lock()
     async def inventory(self, ctx, member: discord.Member | None = None):
-        """View inventory in 3 columns: Materials | Drops&Consumables&Lootboxes | Gear&Warpdrives&Keycards."""
+        """View inventory in 3 columns: Materials | Drops&Consumables&SupplyCrates | Gear&Warpdrives&Keycards."""
         # Resolve target
         target_user = member or ctx.author
         if member is None:
@@ -134,9 +134,9 @@ class Inventory(commands.Cog):
         else:
             drop_lines.extend(sorted(other_drops, key=lambda s: s.lower()))
 
-        # Column 2: Drops, then Consumables, then Lootboxes
+        # Column 2: Drops, then Consumables, then Supply Crates
         consumable_lines = _collect_by_type(items, inv, {"consumable", "potion", "food"})
-        lootbox_lines = _collect_by_type(items, inv, {"lootbox", "crate"})
+        supply_crate_lines = _collect_by_type(items, inv, {"supply_crate", "crate"})
 
         col2_parts = []
         if drop_lines:
@@ -145,9 +145,9 @@ class Inventory(commands.Cog):
         if consumable_lines:
             col2_parts.append("**— Consumables —**")
             col2_parts.extend(sorted(consumable_lines, key=lambda s: s.lower()))
-        if lootbox_lines:
-            col2_parts.append("**— Lootboxes —**")
-            col2_parts.extend(sorted(lootbox_lines, key=lambda s: s.lower()))
+        if supply_crate_lines:
+            col2_parts.append("**— Supply Crates —**")
+            col2_parts.extend(sorted(supply_crate_lines, key=lambda s: s.lower()))
         col2_text = "\n".join(col2_parts) if col2_parts else "-"
 
         # Column 3: Gear & Warpdrives & Keycards
@@ -173,7 +173,7 @@ class Inventory(commands.Cog):
             color=discord.Color.gold(),
         )
         embed.add_field(name="🪵 Materials", value=col1_text[:1024] or "-", inline=True)
-        embed.add_field(name="💧 Drops, 🍖 Consumables & 🎁 Lootboxes", value=col2_text[:1024] or "-", inline=True)
+        embed.add_field(name="💧 Drops, 🍖 Consumables & 🎁 Supply Crates", value=col2_text[:1024] or "-", inline=True)
         embed.add_field(name="⚙️ Gear, 🚀 Warpdrives \n & 🗝️ Keycards", value=col3_text[:1024] or "-", inline=True)
 
         # In case any column overflows 1024 chars, truncate and hint
