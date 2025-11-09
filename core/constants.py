@@ -19,7 +19,7 @@ BOSSES_FILE = os.path.join(DATA_DIR, "bosses.json")
 ENEMIES_FILE = os.path.join(DATA_DIR, "enemies.json")
 COOLDOWNS_FILE = os.path.join(RUNTIME_DATA_DIR, "cooldowns.json")
 CRAFTING_FILE = os.path.join(DATA_DIR, "crafting.json")
-LOOTBOXES_FILE = os.path.join(DATA_DIR, "lootbox.json")
+SUPPLY_CRATES_FILE = os.path.join(DATA_DIR, "supply_crates.json")
 RESEARCH_FILE = os.path.join(DATA_DIR, "research.json")
 CODES_FILE = os.path.join(DATA_DIR, "codes.json")
 CREDITSHOP_FILE = os.path.join(DATA_DIR, "creditshop.json")
@@ -38,9 +38,9 @@ BASE_DEFENSE_MULT = 1.0
 PLAYER_BASE_DAMAGE = 10
 ENEMY_BASE_DAMAGE = 8
 
-# === LOOTBOX CONSTANTS ===
-LOOTBOX_TIERS = ["common", "uncommon", "rare", "mythic", "legendary"]
-LOOTBOX_COOLDOWN = 10800  # 3 hours in seconds
+# === SUPPLY CRATE CONSTANTS ===
+SUPPLY_CRATE_TIERS = ["common", "uncommon", "rare", "mythic", "legendary"]
+SUPPLY_CRATE_COOLDOWN = 10800  # 3 hours in seconds
 
 
 # skills stuff
@@ -63,7 +63,7 @@ COMMAND_COOLDOWNS = {
     "bossfight": 43200,   # 12 hours
     "daily": 86400,       # 24 hours
     "weekly": 604800,     # 7 days
-    "lootbox": 10800,     # 3 hours
+    "supply_crate": 10800,     # 3 hours
     "quest": 10800,        # 3 hours
     "bossfight": 43200,    # 12 hours
     "ship refit": 28800    # 8 hours
@@ -72,7 +72,7 @@ COMMAND_COOLDOWNS = {
 COMMAND_GROUPS = {
     "Play": ["scan", "work", "research", "explore"],
     "Progression": ["bossfight", "quest", "planet", "travel", "sector", "ship", "ship upgrade", "ship refit", "skills", "overcharge"],
-    "Inventory": ["inventory", "equip", "tinker", "recipes", "craft", "dismantle", "use", "shop","buy", "lootbox", "open", "lootbox", "trade"],
+    "Inventory": ["inventory", "equip", "tinker", "recipes", "craft", "dismantle", "use", "shop","buy", "open", "trade"],
     "Gambling": ["roulette", "slots", "race"],
     "Misc": ["commands", "ready", "daily", "weekly", "profile", "creditshop", "creditbuy", "raid", "help/info"]
 }
@@ -87,4 +87,4 @@ GROUP_EMOJIS = {
     "Misc": "⚙️"
 }
 
-COOLDOWN_COMMANDS = {"scan", "work", "research", "explore", "lootbox", "quest", "ship refit", "daily", "weekly"}
+COOLDOWN_COMMANDS = {"scan", "work", "research", "explore", "supply_crate", "quest", "ship refit", "daily", "weekly"}

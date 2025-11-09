@@ -40,7 +40,7 @@ TRAP_TRIGGER_CHANCE = 0.015
 TRAP_RESPONSE_SECONDS = 3
 TRAP_DAMAGE_HP = 5
 
-LOOTBOX_IDS = {
+SUPPLY_CRATE_IDS = {
     "common": "300",
     "uncommon": "301",
     "rare": "302",
@@ -62,9 +62,9 @@ def _choose_symbol(rng: random.Random) -> int:
 def _format_reels(idxs):
     return " | ".join(SYMBOLS[i]["emoji"] for i in idxs)
 
-def _resolve_lootbox_prices() -> dict:
+def _resolve_crate_prices() -> dict:
     shop = load_json(SHOP_FILE) or {}
-    loot = (shop.get("lootbox") or {})
+    loot = (shop.get("Supply Crate") or {})
     id_to_price = {}
     if isinstance(loot, dict):
         for k, v in loot.items():
@@ -73,7 +73,7 @@ def _resolve_lootbox_prices() -> dict:
                 id_to_price[iid] = int(v.get("price", 0) or 0)
             except Exception:
                 continue
-    return {tier: id_to_price.get(iid, 0) for tier, iid in LOOTBOX_IDS.items()}
+    return {tier: id_to_price.get(iid, 0) for tier, iid in SUPPLY_CRATE_IDS.items()}
 
 def _add_inventory(profile: dict, item_id: str, qty: int = 1):
     inv = profile.get("inventory", {}) or {}
@@ -201,11 +201,11 @@ class Slots(commands.Cog):
             net = payout - wager
 
             # Jackpot rolls
-            lootbox_prices = _resolve_lootbox_prices()
+            crate_prices = _resolve_crate_prices()
             awarded_lb: list[str] = []
-            if lootbox_prices:
+            if crate_prices:
                 for tier in ("legendary", "mythic", "rare", "uncommon", "common"):
-                    price = int(lootbox_prices.get(tier, 0) or 0)
+                    price = int(crate_prices.get(tier, 0) or 0)
                     if price <= 0:
                         continue
                     chance = min(JACKPOT_CAP, (wager / price) * BASE_JACKPOT_RATE)
@@ -227,9 +227,9 @@ class Slots(commands.Cog):
                 # NEW: Gambler XP (flat +5 per win)
                 award_skill(ctx, "gambler", 5)
 
-            # Award lootboxes
+            # Award supply_crates
             for tier in awarded_lb:
-                iid = LOOTBOX_IDS.get(tier)
+                iid = SUPPLY_CRATE_IDS.get(tier)
                 if iid:
                     _add_inventory(prof, iid, 1)
 
@@ -284,7 +284,7 @@ class Slots(commands.Cog):
                 lines.append("No win.")
             if awarded_lb:
                 pretty = ", ".join(t.capitalize() for t in awarded_lb)
-                lines.append(f"🎁 Jackpot: {pretty} Lootbox")
+                lines.append(f"🎁 Jackpot: {pretty} Supply Crate")
             if awarded_gear_id:
                 qlabel, qemoji = _gear_quality_label(awarded_gear_id)
                 gear_type = "Weapon" if awarded_gear_id.startswith("1") else "Armor"
@@ -298,3 +298,4 @@ class Slots(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Slots(bot))
+

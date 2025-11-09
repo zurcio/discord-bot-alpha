@@ -44,21 +44,21 @@ class Weekly(commands.Cog):
         med_kits_earned = 25 * max(1, ctx.player.get("max_unlocked_planet", 1))
         oxy_earned = 10 * max(1, ctx.player.get("max_unlocked_planet", 1))
 
-        # Determine lootbox tier by planet
+        # Determine Supply Crate tier by planet
         planet = max(1, ctx.player.get("max_unlocked_planet", 1))
         if planet <= 2:
-            lootbox_id = "300"  # Common
+            crate_id = "300"  # Common
         elif planet <= 4:
-            lootbox_id = "301"  # Uncommon
+            crate_id = "301"  # Uncommon
         elif planet <= 6:
-            lootbox_id = "302"  # Rare
+            crate_id = "302"  # Rare
         elif planet <= 8:
-            lootbox_id = "303"  # Mythic
+            crate_id = "303"  # Mythic
         else:
-            lootbox_id = "304"  # Legendary
+            crate_id = "304"  # Legendary
 
         # Compose items to grant via rewards engine
-        items_to_grant = {lootbox_id: 1}
+        items_to_grant = {crate_id: 1}
         if medkit_id:
             items_to_grant[medkit_id] = items_to_grant.get(medkit_id, 0) + med_kits_earned
         if oxy_id:
@@ -76,8 +76,8 @@ class Weekly(commands.Cog):
             tags=["weekly"]
         )
 
-        lootboxes = (items_data or {}).get("lootboxes", {})
-        lootbox_name = lootboxes.get(lootbox_id, {}).get("name", "Lootbox")
+        Supply Cratees = (items_data or {}).get("Supply Cratees", {})
+        Supply Crate_name = Supply Cratees.get(crate_id, {}).get("name", "Supply Crate")
 
         # Build message
         msg = f"{ctx.author.mention} claimed their weekly reward!\n"
@@ -86,7 +86,7 @@ class Weekly(commands.Cog):
         if res.get("xp_result", {}).get("leveled_up"):
             levels_gained = res["xp_result"].get("levels_gained", 1)
             msg += f"\n🎉 Level up! Now Level {player['level']} (+{levels_gained})."
-        msg += f"\n🎁 +1 {lootbox_name}"
+        msg += f"\n🎁 +1 {Supply Crate_name}"
         msg += f"\n💳 +{credits} Credits"
         msg += f"\n🩹 +{med_kits_earned} Med Kits" if medkit_id else ""
         msg += f"\n🫧 +{oxy_earned} Oxygen Tanks" if oxy_id else ""
@@ -97,3 +97,4 @@ class Weekly(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Weekly(bot))
+

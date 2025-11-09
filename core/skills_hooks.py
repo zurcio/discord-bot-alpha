@@ -28,7 +28,7 @@ def effects_for(player: dict) -> dict:
     """
     Returns a flat dict of skill-driven effects. Safe to import in combat/sell/tinker/work/etc.
     Keys:
-      - lootbox_mult, extra_lootboxes
+      - supply_crate_mult, extra_supply_crates
       - sell_price_mult
       - tinker_high_tier_weight_mult, tinker_scrap_refund_chance
       - ship_upgrade_cost_reduction, ship_max_level_bonus
@@ -44,8 +44,8 @@ def effects_for(player: dict) -> dict:
     work = pk.get("worker", {}) or {}
     craft = pk.get("crafter", {}) or {}
     return {
-        "lootbox_mult": float(boxer.get("lootbox_chance_mult", 1.0)),
-        "extra_lootboxes": int(boxer.get("extra_lootboxes", 0)),
+        "supply_crate_mult": float(boxer.get("supply_crate_chance_mult", 1.0)),
+        "extra_supply_crates": int(boxer.get("extra_supply_crates", 0)),
         "sell_price_mult": float(trader.get("sell_price_mult", 1.0)),
         "tinker_high_tier_weight_mult": float(tink.get("tinker_high_tier_weight_mult", 1.0)),
         "tinker_scrap_refund_chance": float(tink.get("tinker_scrap_refund_chance", 0.0)),
@@ -59,11 +59,11 @@ def effects_for(player: dict) -> dict:
 
 # NEW: Focused helpers (import these in modules as needed)
 
-def lootbox_effects(player: dict) -> dict:
+def supply_crate_effects(player: dict) -> dict:
     ef = effects_for(player)
     return {
-        "lootbox_mult": ef["lootbox_mult"],
-        "extra_lootboxes": ef["extra_lootboxes"],
+        "supply_crate_mult": ef["supply_crate_mult"],
+        "extra_supply_crates": ef["extra_supply_crates"],
     }
 
 def trader_effects(player: dict) -> dict:

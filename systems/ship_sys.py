@@ -115,18 +115,18 @@ def derive_ship_effects(player: dict) -> dict:
     """
     Derive all ship effects/multipliers for gameplay.
     Returns keys:
-      rewards_mult, lootbox_mult, drop_chance_mult, crew_chance_mult,
+      rewards_mult, supply_crate_mult, drop_chance_mult, crew_chance_mult,
       keycard_override (bool), life_support (bool),
-      double_drops (bool), double_lootboxes (bool),
+      double_drops (bool), double_supply_crates (bool),
       type_boost: {"stat": <one of attack/defense/hp/scrap/tinker>, "value": decimal}
     """
     ensure_ship(player)
     ship = player["ship"]
     if not ship.get("owned"):
         return {
-            "rewards_mult": 1.0, "lootbox_mult": 1.0, "drop_chance_mult": 1.0, "crew_chance_mult": 1.0,
+            "rewards_mult": 1.0, "supply_crate_mult": 1.0, "drop_chance_mult": 1.0, "crew_chance_mult": 1.0,
             "keycard_override": False, "life_support": False,
-            "double_drops": False, "double_lootboxes": False,
+            "double_drops": False, "double_supply_crates": False,
             "type_boost": {"stat": None, "value": 0.0},
         }
     tier = int(ship.get("tier", 1))
@@ -135,13 +135,13 @@ def derive_ship_effects(player: dict) -> dict:
 
     # Baseline progression multipliers
     rewards_mult = 1.0 + 0.25 * (level / 100.0)  # +25% at L100 (mk1+)
-    lootbox_mult = 1.0 + (0.10 + 0.20 * (level / 100.0)) if tier >= 4 else 1.0  # +10..30%
+    supply_crate_mult = 1.0 + (0.10 + 0.20 * (level / 100.0)) if tier >= 4 else 1.0  # +10..30%
     drop_chance_mult = 1.0 + (0.10 + 0.20 * (level / 100.0)) if tier >= 8 else 1.0  # +10..30%
     crew_chance_mult = 1.0 + (0.05 + 0.15 * (level / 100.0)) if tier >= 7 else 1.0  # +5..20%
 
     keycard_override = tier >= 6
     life_support = tier >= 5
-    double_flag = (tier >= MAX_TIER)  # mk10 → double drops (items and lootboxes)
+    double_flag = (tier >= MAX_TIER)  # mk10 → double drops (items and supply crates)
 
     # Type-specific boost
     boost_val = type_boost_percent(tier, level)  # decimal
@@ -154,13 +154,13 @@ def derive_ship_effects(player: dict) -> dict:
     }
     return {
         "rewards_mult": rewards_mult,
-        "lootbox_mult": lootbox_mult,
+        "supply_crate_mult": supply_crate_mult,
         "drop_chance_mult": drop_chance_mult,
         "crew_chance_mult": crew_chance_mult,
         "keycard_override": keycard_override,
         "life_support": life_support,
         "double_drops": double_flag,
-        "double_lootboxes": double_flag,
+        "double_supply_crates": double_flag,
         "type_boost": {"stat": stat_map.get(stype), "value": boost_val},
     }
 

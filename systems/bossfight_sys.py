@@ -235,8 +235,8 @@ def compute_base_victory_rewards(boss: dict, planet_id: int, num_players: int) -
     base_xp = int(rewards_cfg.get("xp_base", 250 * int(planet_id)) * party_mult)
 
     items = {}
-    # Optional single lootbox id in config
-    lb = rewards_cfg.get("lootbox_id")
+    # Optional single supply crate id in config
+    lb = rewards_cfg.get("supply_crate_id")
     if lb:
         items[str(lb)] = 1
 
@@ -468,3 +468,4 @@ def grant_boss_rewards(user_id: str, planet_id: int, profile: dict):
     profile["inventory"] = inv
     print(f"[DEBUG] grant_boss_rewards -> {user_id}: {profile}")
     return new_warp_id, warpdrives.get(new_warp_id, {}).get("name")
+

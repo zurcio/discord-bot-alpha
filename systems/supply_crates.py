@@ -1,8 +1,8 @@
-# Lootbox rewards driven by data/lootbox.json
+# Supply Crate rewards driven by data/supply_crates.json
 import random
 from typing import Dict, List, Tuple
 from core.shared import load_json
-from core.constants import ITEMS_FILE, LOOTBOXES_FILE
+from core.constants import ITEMS_FILE, SUPPLY_CRATES_FILE
 
 def _clamp_qty(low: int, high: int) -> Tuple[int, int]:
     a, b = int(low), int(high)
@@ -66,16 +66,16 @@ def _get_pool_for_rarity(tier_cfg: dict, rarity: str) -> List[str]:
     pools = tier_cfg.get("pools", {}) or {}
     return list(pools.get(rarity, []) or [])
 
-def has_valid_lootbox_config(tier: str) -> bool:
-    cfg_all = load_json(LOOTBOXES_FILE) or {}
+def has_valid_supply_crate_config(tier: str) -> bool:
+    cfg_all = load_json(SUPPLY_CRATES_FILE) or {}
     tcfg = cfg_all.get(str(tier).lower())
     if not tcfg:
         return False
     pools = tcfg.get("pools", {}) or {}
     return any(len(v or []) > 0 for v in pools.values())
 
-def get_lootbox_config_snapshot(tier: str) -> dict:
-    cfg_all = load_json(LOOTBOXES_FILE) or {}
+def get_supply_crate_config_snapshot(tier: str) -> dict:
+    cfg_all = load_json(SUPPLY_CRATES_FILE) or {}
     return cfg_all.get(str(tier).lower(), {})
 
 # ---- Planet gating helpers ----
@@ -118,8 +118,8 @@ def _is_allowed_for_planet(item_id: str, items_data: dict, max_planet: int) -> b
         return True
 
     itype = str(meta.get("type", "")).lower()
-    if itype == "lootbox":
-        return True  # allow lootbox rewards
+    if itype == "supply_crate":
+        return True  # allow supply crate rewards
     if cat == "drops":
         # Drops have 'planet': [min, max]
         try:
@@ -137,15 +137,15 @@ def _is_allowed_for_planet(item_id: str, items_data: dict, max_planet: int) -> b
     # Other categories (weapons/armor/etc.) are allowed by default
     return True
 
-def generate_lootbox_rewards(player: dict, box_tier: str, items_data: dict) -> dict[str, int]:
+def generate_supply_crate_rewards(player: dict, crate_tier: str, items_data: dict) -> dict[str, int]:
     """
     Each roll yields exactly 1 unit of a chosen item. Total items per open equals the roll count.
     Duplicates aggregate if the same item is picked multiple times.
     Pool entries in the JSON are canonicalized to real item ids before picking.
     Applies planet gating so players cannot receive materials/drops from planets they haven't reached.
     """
-    cfg_all = load_json(LOOTBOXES_FILE) or {}
-    tcfg = cfg_all.get(str(box_tier).lower())
+    cfg_all = load_json(SUPPLY_CRATES_FILE) or {}
+    tcfg = cfg_all.get(str(crate_tier).lower())
     if not tcfg:
         return {}
 

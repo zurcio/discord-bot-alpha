@@ -143,9 +143,9 @@ class Buy(commands.Cog):
 
         item_id, item_obj, shop_entry = found_item
 
-        # Detect lootbox early and clamp amount to 1 to prevent cooldown bypass
-        is_lootbox_item = (item_obj.get("type") or "").lower() == "lootbox"
-        if is_lootbox_item and amount != 1:
+        # Detect supply crate early and clamp amount to 1 to prevent cooldown bypass
+        is_supply_crate_item = (item_obj.get("type") or "").lower() == "supply_crate"
+        if is_supply_crate_item and amount != 1:
             amount = 1
 
         # Boss keycard: limit to 1 owned at a time, price scales with CURRENT planet
@@ -172,10 +172,10 @@ class Buy(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Not enough Scrap (need {total_price:,}).")
             return
 
-        # Lootbox cooldown: allow only one every 3 hours; amount already clamped to 1 above
-        is_lootbox = is_lootbox_item
-        if is_lootbox:
-            if not await check_and_set_cooldown(ctx, "lootbox", 10800):
+        # Supply Crate cooldown: allow only one every 3 hours; amount already clamped to 1 above
+        is_supply_crate = is_supply_crate_item
+        if is_supply_crate:
+            if not await check_and_set_cooldown(ctx, "supply_crate", 10800):
                 return
 
         # Starter ship special-case

@@ -1,7 +1,7 @@
 # fly.toml app configuration file
 # Docs: https://fly.io/docs/reference/configuration/
 
-app = "discord-bot-alpha"
+app = "space-rpg-bot-alpha"
 primary_region = "iad"  # choose your closest region
 kill_signal = "SIGINT"
 kill_timeout = "5s"

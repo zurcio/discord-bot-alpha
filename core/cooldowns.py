@@ -8,7 +8,7 @@ command_cooldowns = {
     "explore": 3600,      # 1 hour
     "daily": 86400,       # 24 hours
     "weekly": 604800,     # 7 days
-    "lootbox": 10800,     # 3 hours
+    "supply_crate": 10800,     # 3 hours
     "quest": 10800,        # 3 hours
     "bossfight": 43200,    # 12 hours
     "ship refit": 28800         # 8 hours
@@ -79,3 +79,4 @@ async def check_and_set_cooldown(ctx, command, cooldown_duration):
 
     set_cooldown(user_id, command, now + cooldown_duration, username)
     return True
+

@@ -167,7 +167,7 @@ def finalize_job_reward(player: Dict, crew: Dict, sector: int, planet: int) -> D
     elif ctype == "scientist":
         reward["xp"] = 250 * s * p
         if rng.random() < 0.15:
-            reward.setdefault("lootboxes", {})["common"] = 1
+            reward.setdefault("supply_crates", {})["common"] = 1
     elif ctype == "explorer":
         reward["scrap"] = 150 * s * p
         # Placeholder: one enemy-drop-like item

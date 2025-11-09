@@ -31,41 +31,41 @@
       "type": "armor"
     }
   },
-  "lootbox": {
+  "supply_crate": {
     "300": {
       "item_id": "300",
-      "name": "Common Lootbox",
+      "name": "Common Supply Crate",
       "price": 5000,
-      "description": "A basic lootbox containing random items.",
-      "type": "lootbox"
+      "description": "A basic supply crate containing essential materials and items. Buy on cooldown for steady progression!",
+      "type": "supply_crate"
     },
     "301": {
       "item_id": "301",
-      "name": "Uncommon Lootbox",
+      "name": "Uncommon Supply Crate",
       "price": 25000,
-      "description": "A better lootbox containing better random items.",
-      "type": "lootbox"
+      "description": "An improved supply crate with better materials. Regular purchases accelerate your progression!",
+      "type": "supply_crate"
     },
     "302": {
       "item_id": "302",
-      "name": "Rare Lootbox",
+      "name": "Rare Supply Crate",
       "price": 50000,
-      "description": "An even better lootbox containing even better random items.",
-      "type": "lootbox"
+      "description": "A rare supply crate filled with higher quality materials. Great for mid-game advancement!",
+      "type": "supply_crate"
     },
     "303": {
       "item_id": "303",
-      "name": "Mythic Lootbox",
+      "name": "Mythic Supply Crate",
       "price": 100000,
-      "description": "A powerful lootbox containing high-tier random items.",
-      "type": "lootbox"
+      "description": "A powerful supply crate containing valuable resources. Essential for late-game progression!",
+      "type": "supply_crate"
     },
     "304": {
       "item_id": "304",
-      "name": "Legendary Lootbox",
+      "name": "Legendary Supply Crate",
       "price": 500000,
-      "description": "The ultimate lootbox containing the best random items.",
-      "type": "lootbox"
+      "description": "The ultimate supply crate packed with the best materials. Buy regularly to maximize progress!",
+      "type": "supply_crate"
     }
   },
   "keycard": {

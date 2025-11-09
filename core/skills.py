@@ -136,7 +136,7 @@ def perks_trader(level: int) -> dict:
     return {"sell_price_mult": mult}
 
 def perks_boxer(level: int) -> dict:
-    # Chance multiplier applies multiplicatively to base lootbox drop chance
+    # Chance multiplier applies multiplicatively to base supply crate drop chance
     drop_mult = 1 + 0.05 * min(level, 100) / 100.0
     extra = 0
     if level > 100:
@@ -144,7 +144,7 @@ def perks_boxer(level: int) -> dict:
         extra = 1 + max(0, (level - 101) // 2)
         if BOXER_EXTRA_CAP is not None:
             extra = min(extra, BOXER_EXTRA_CAP)
-    return {"lootbox_chance_mult": drop_mult, "extra_lootboxes": extra}
+    return {"supply_crate_chance_mult": drop_mult, "extra_supply_crates": extra}
 
 def perks_gambler(level: int) -> dict:
     bank_xp_bonus = 1 + 0.015 * min(level, 100) / 100.0

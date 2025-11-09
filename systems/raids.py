@@ -83,7 +83,7 @@ MEGA_WEAPON_KEYS = {
 }
 
 # Rewards (rank band payouts)
-BASE_REWARD_POOL_SCRAP = 50_000    # base pool for successful raid
+BASE_REWARD_POOL_SCRAP = 5_000_000    # base pool for successful raid
 CONSOLATION_POOL_FRACTION = 0.10   # if fail, pay 10% of pool
 
 # Rank band payout structure (can be tweaked)

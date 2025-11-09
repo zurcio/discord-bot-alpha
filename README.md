@@ -1,11 +1,11 @@
 # Discord Bot Alpha
 
-A modular Discord bot with skills, combat, lootboxes, crafting, raids, and more. Commands are organized as cogs under `commands/` and systems under `systems/`.
+A modular Discord bot with skills, combat, supply crates, crafting, raids, and more. Commands are organized as cogs under `commands/` and systems under `systems/`.
 
 ## Features
 - Modular command cogs (bank, craft, combat, explore/scan, ship, tinker, raids, etc.)
 - Skills system (worker, crafter, tinkerer, trader, boxer, gambler, soldier) with perks
-- Lootboxes with planet gating and rarities (up to universal)
+- supply crates with planet gating and rarities (up to universal)
 - Raids MVP (battery, timed boss fights, proportional rewards)
 
 ## Requirements
@@ -41,3 +41,4 @@ If a token was ever committed to this repository:
 
 ## License
 Add a license of your choice (e.g., MIT) by creating a `LICENSE` file.
+
