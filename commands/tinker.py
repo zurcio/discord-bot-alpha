@@ -26,9 +26,9 @@ _TINKER_TIER_XP = {
 
 def _planet_xp_mult(effective_planet: int) -> int:
     if effective_planet >= 10:
-        return 1000
+        return 500
     if 7 <= effective_planet <= 9:
-        return 100
+        return 50
     return 1
 
 class Tinker(commands.Cog):
