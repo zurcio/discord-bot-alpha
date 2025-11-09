@@ -7,7 +7,9 @@ from systems.raids import (
     get_status, is_active, maybe_finalize,
     attack_personal, charge_personal_from_materials, get_personal_status,
     charge_mega, convert_to_personal_units, convert_to_mega_units,
-    calculate_scrap_total, MEGA_WEAPON_KEYS, claim_payout
+    calculate_scrap_total, MEGA_WEAPON_KEYS, claim_payout,
+    PERSONAL_SCRAP_PERCENT_PER_UNIT, PERSONAL_MATERIALS_PER_UNIT,
+    MEGA_SCRAP_PERCENT_PER_UNIT, MEGA_MATERIALS_PER_UNIT
 )
 
 def _fmt_timeleft(ts: int) -> str:
@@ -186,6 +188,20 @@ class Raid(commands.Cog):
                     inv.pop(resource, None)
                 prof["inventory"] = inv
             units = convert_to_personal_units(resource, amount, total_scrap)
+            
+            # Check if conversion yielded any units
+            if units <= 0:
+                # Refund - amount too small to convert
+                if resource == "scrap":
+                    prof["Scrap"] = int(prof.get("Scrap", 0)) + amount
+                else:
+                    inv[resource] = int(inv.get(resource, 0)) + amount
+                    prof["inventory"] = inv
+                save_profile(uid, prof)
+                min_needed = max(1, int(math.ceil(total_scrap * PERSONAL_SCRAP_PERCENT_PER_UNIT / 100))) if resource == "scrap" else PERSONAL_MATERIALS_PER_UNIT
+                await ctx.send(f"❌ Amount too small to convert to charge units. Minimum needed: {min_needed:,} {resource}.")
+                return
+            
             set_lock(uid, "raid_charge", allowed=set(), note="raid charge")
             try:
                 state = load_state()
@@ -250,6 +266,20 @@ class Raid(commands.Cog):
                     inv.pop(key, None)
                 prof["inventory"] = inv
             units = convert_to_mega_units(key, amount, total_scrap)
+            
+            # Check if conversion yielded any units
+            if units <= 0:
+                # Refund - amount too small to convert
+                if key == "scrap":
+                    prof["Scrap"] = int(prof.get("Scrap", 0)) + amount
+                else:
+                    inv[key] = int(inv.get(key, 0)) + amount
+                    prof["inventory"] = inv
+                save_profile(uid, prof)
+                min_needed = max(1, int(math.ceil(total_scrap * MEGA_SCRAP_PERCENT_PER_UNIT / 100))) if key == "scrap" else MEGA_MATERIALS_PER_UNIT
+                await ctx.send(f"❌ Amount too small to convert to charge units. Minimum needed: {min_needed:,} {key}.")
+                return
+            
             set_lock(uid, "raid_support", allowed=set(), note="raid support")
             try:
                 state = load_state()
