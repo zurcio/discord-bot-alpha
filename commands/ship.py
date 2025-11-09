@@ -70,12 +70,12 @@ class Ship(commands.Cog):
         )
         embed.add_field(name="Core Modules", value=(
             f"• Rewards Mult: x{effects['rewards_mult']:.2f} (daily/weekly)\n"
-            f"• Lootbox Chance Mult: x{effects['lootbox_mult']:.2f} (mk4+)\n"
+            f"• Supply Crate Chance Mult: x{effects['supply_crate_mult']:.2f} (mk4+)\n"
             f"• Drop Chance Mult: x{effects['drop_chance_mult']:.2f} (mk8+)\n"
             f"• Crew Chance Mult: x{effects['crew_chance_mult']:.2f} (mk7+)\n"
             f"• Life Support (mk5+): {'✅' if effects['life_support'] else '❌'}\n"
             f"• Keycard Override (mk6+): {'✅' if effects['keycard_override'] else '❌'}\n"
-            f"• Double Drops & Lootboxes (mk10): {'✅' if effects['double_drops'] else '❌'}"
+            f"• Double Drops & Supply Crates (mk10): {'✅' if effects['double_drops'] else '❌'}"
         ), inline=False)
         embed.add_field(name="Type Boost", value=tb_text, inline=False)
 
