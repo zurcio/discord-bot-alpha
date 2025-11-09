@@ -128,6 +128,7 @@ def battery_percent(state: Dict[str, Any]) -> int:
 def charge_battery(state: Dict[str, Any], user_id: str, event_key: str, amount: int | None = None) -> int:
     """
     Add charge to the raid battery. Returns new percent (0..100).
+    Auto-opens raid when battery reaches 100%.
     """
     # Do not charge main battery while a raid is active
     if state.get("active") is not None and is_active(state):
@@ -151,7 +152,13 @@ def charge_battery(state: Dict[str, Any], user_id: str, event_key: str, amount: 
     ent["last_ts"] = _now()
     # dynamic target
     _recalc_battery_target(state, None)
-    return battery_percent(state)
+    pct = battery_percent(state)
+    
+    # Auto-open raid when battery hits 100%
+    if pct >= 100 and can_open(state):
+        open_raid(state, boss_name="World Eater")
+    
+    return pct
 
 def can_open(state: Dict[str, Any]) -> bool:
     return state.get("active") is None and battery_percent(state) >= 100
