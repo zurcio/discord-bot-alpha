@@ -10,6 +10,7 @@ from core.quest_progress import update_quest_progress_for_crafting, craft_progre
 from math import floor
 from core.skills_hooks import crafter_effects, award_skill
 from systems.crafting import crafter_xp_for_product
+from core.parsing import parse_amount
 
 
 def _norm_key(s: str) -> str:
@@ -57,10 +58,14 @@ class Craft(commands.Cog):
 
         # --- Split into item name + amount ---
         parts = item_and_amount.rsplit(" ", 1)
-        if len(parts) == 2 and parts[1].isdigit():
-            item_name, amount = parts[0], int(parts[1])
-        elif len(parts) == 2 and parts[1].lower() == "all":
-            item_name, amount = parts[0], "all"
+        if len(parts) == 2:
+            # Try to parse as amount (supports k/m/b, all, half, numbers)
+            parsed_amount = parse_amount(parts[1])
+            if parsed_amount is not None:
+                item_name, amount = parts[0], parsed_amount
+            else:
+                # Not a valid amount, treat whole string as item name
+                item_name, amount = item_and_amount, 1
         else:
             item_name, amount = item_and_amount, 1
 
@@ -121,14 +126,13 @@ class Craft(commands.Cog):
                 max_craft = min(max_craft, have // int(qty_needed))
             amount_to_craft = int(max_craft) if max_craft != float("inf") and max_craft > 0 else 0
             if amount_to_craft == 0:
-                await ctx.send(f"{ctx.author.mention} ❌ You don’t have enough materials to craft any {recipe.get('name', recipe_key)}.")
+                await ctx.send(f"{ctx.author.mention} ❌ You don't have enough materials to craft any {recipe.get('name', recipe_key)}.")
                 return
+        elif isinstance(amount, int):
+            amount_to_craft = max(1, amount)
         else:
-            if isinstance(amount, int):
-                amount_to_craft = max(1, min(100, amount))
-            else:
-                await ctx.send(f"{ctx.author.mention} ❌ Invalid amount: {amount}")
-                return
+            await ctx.send(f"{ctx.author.mention} ❌ Invalid amount: {amount}")
+            return
 
         # --- Check materials (includes enemy drops and scrap as currency) ---
         for mat_id, qty_needed in recipe["materials"].items():

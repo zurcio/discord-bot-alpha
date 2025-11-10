@@ -3,6 +3,7 @@ from discord.ext import commands
 from core.decorators import requires_profile
 from systems.dismantle_sys import dismantle_item
 from core.guards import require_no_lock
+from core.parsing import parse_amount
 
 
 class Dismantle(commands.Cog):
@@ -16,19 +17,20 @@ class Dismantle(commands.Cog):
         """
         Dismantle higher-tier materials into lower-tier ones.
         Example: !dismantle plasteel sheet 3
+        Supports: !dismantle psheet 5k, !dismantle pbar all, !dismantle pbeam half
         """
-        parts = args.lower().split()
+        parts = args.split()
         if len(parts) < 1:
             await ctx.send("❌ Usage: `!dismantle <item name> [amount]`")
             return
 
-        # Parse amount (default 1)
-        try:
-            amount = int(parts[-1])
+        # Try parsing last part as amount (supports k/m/b, all, half, numbers)
+        parsed_amount = parse_amount(parts[-1]) if len(parts) > 1 else None
+        
+        if parsed_amount is not None:
             item_name = " ".join(parts[:-1])
-            if not item_name:
-                raise ValueError
-        except ValueError:
+            amount = parsed_amount
+        else:
             item_name = " ".join(parts)
             amount = 1
 

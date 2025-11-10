@@ -17,7 +17,7 @@ def get_material_tiers():
     }
 
 
-def dismantle_item(player, item_name: str, amount: int):
+def dismantle_item(player, item_name: str, amount: int | str):
     items_data = load_json(ITEMS_FILE)
     inventory = player.get("inventory", {})
 
@@ -59,9 +59,18 @@ def dismantle_item(player, item_name: str, amount: int):
         # Try with the original key from items.json
         inv_key = item_key
     
-    if inv_key not in inventory or inventory.get(inv_key, 0) < amount:
-        have_qty = inventory.get(inv_key, 0)
+    have_qty = inventory.get(inv_key, 0)
+    
+    # Handle "all" amount
+    if isinstance(amount, str) and amount.lower() == "all":
+        amount = have_qty
+    
+    # Validate amount
+    if have_qty < amount:
         return f" You don't have enough `{resolved_name}` to dismantle. You have {have_qty}, need {amount}."
+    
+    if amount <= 0:
+        return f" You need to dismantle at least 1 `{resolved_name}`."
 
     # Determine what item this dismantles into
     lower_tier_name = material_tiers[found_family][tier_index - 1]
