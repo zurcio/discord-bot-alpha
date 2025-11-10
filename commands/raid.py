@@ -104,19 +104,39 @@ class Raid(commands.Cog):
             # Personal battery status
             pct, cd_rem = get_personal_status(state, uid)
             if cd_rem > 0:
-                personal_status = f"{pct}% (⏳ {cd_rem//60}m cooldown)"
+                personal_status = f"{pct}% (⏳ Cooldown: {_fmt_timeleft(int(time.time())+cd_rem)})"
             else:
-                personal_status = f"{pct}%"
+                personal_status = f"{pct}% (✅ Ready)"
             embed.add_field(name="🔋 Your Personal Artillery", value=personal_status, inline=False)
             
-            # Mega weapon summary
+            # Mega weapon summary with rate limits
             mega_display = []
+            mega_container = st.get("mega") or {}
+            one_hour_ago = int(time.time()) - 3600
+            
             for k in ["plasteel", "circuit", "plasma", "biofiber", "scrap"]:
-                if k in (st.get("mega") or {}):
-                    meta = st["mega"][k]
+                if k in mega_container:
+                    meta = mega_container[k]
                     prog = int(meta.get("progress", 0)); tgt = int(meta.get("target", 1))
                     pctm = min(100, math.floor(100*prog/tgt))
-                    mega_display.append(f"**{MEGA_WEAPON_KEYS.get(k, k)}**: {pctm}%")
+                    
+                    # Check user's rate limit status
+                    user_contrib = meta.get("contributors", {}).get(str(uid), {})
+                    timestamps = user_contrib.get("timestamps", [])
+                    units_last_hour = len([ts for ts in timestamps if ts > one_hour_ago])
+                    
+                    weapon_status = f"**{MEGA_WEAPON_KEYS.get(k, k)}**: {pctm}%"
+                    
+                    if units_last_hour >= MEGA_HOURLY_CONTRIBUTION_LIMIT:
+                        # Find oldest timestamp to calculate when they can contribute again
+                        oldest_recent = min([ts for ts in timestamps if ts > one_hour_ago])
+                        time_until_available = oldest_recent + 3600 - int(time.time())
+                        weapon_status += f" (⏳ Rate limited: {time_until_available//60}m)"
+                    elif units_last_hour > 0:
+                        remaining = MEGA_HOURLY_CONTRIBUTION_LIMIT - units_last_hour
+                        weapon_status += f" ({remaining}% capacity remaining)"
+                    
+                    mega_display.append(weapon_status)
             
             if mega_display:
                 embed.add_field(name="🛠 Mega Weapons", value="\n".join(mega_display), inline=False)

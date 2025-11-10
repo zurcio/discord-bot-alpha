@@ -615,8 +615,14 @@ def get_charge_preview_personal(resource_key: str, amount: int, total_scrap: int
     
     # Check if capped by max charge
     max_units_allowed = (PERSONAL_MAX_CHARGE - current_percent)
+    was_capped = units > max_units_allowed
     capped_units = min(units, max_units_allowed)
-    capped_amount = amount if capped_units == units else int(capped_units * cost_per_unit)
+    
+    # Only recalculate amount if we actually capped the units
+    if was_capped:
+        capped_amount = int(capped_units * cost_per_unit)
+    else:
+        capped_amount = amount
     
     return {
         "units": capped_units,
@@ -625,7 +631,7 @@ def get_charge_preview_personal(resource_key: str, amount: int, total_scrap: int
         "will_overcharge": will_overcharge,
         "final_percent": min(PERSONAL_MAX_CHARGE, current_percent + capped_units),
         "capped_amount": capped_amount,
-        "was_capped": capped_units < units
+        "was_capped": was_capped
     }
 
 def get_charge_preview_mega(resource_key: str, amount: int, total_scrap: int, total_materials: int, current_percent: int, units_contributed_last_hour: int) -> Dict[str, Any]:
