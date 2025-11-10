@@ -68,7 +68,7 @@
     },
     "106": {
       "name": "Sharder",
-      "aliases": ["sharder", "shard"],
+      "aliases": ["sharder", "shr"],
       "output": 1,
       "materials": {
         "plasma_slag": 50,
@@ -149,7 +149,7 @@
     },
     "203": {
       "name": "Plasma Suit",
-      "aliases": ["plasmaarmor", "plasmasuit"],
+      "aliases": ["plasuit"],
       "output": 1,
       "materials": {
         "plasma": 20,
@@ -162,7 +162,7 @@
     },
     "204": {
       "name": "Petal Loincloth",
-      "aliases": ["petal", "loincloth", "pl"],
+      "aliases": ["petal", "loincloth", "ploin"],
       "output": 1,
       "materials": {
         "plasteel_sheet": 10,
@@ -244,7 +244,7 @@
     },
     "plasteel_sheet": {
       "name": "Plasteel Sheet",
-      "aliases": ["sheet"],
+      "aliases": ["psheet", "ps"],
       "output": 1,
       "materials": {
         "plasteel": 10
@@ -254,7 +254,7 @@
     },
     "plasteel_bar": {
       "name": "Plasteel Bar",
-      "aliases": ["bar"],
+      "aliases": ["pbar", "pba"],
       "output": 1,
       "materials": {
         "plasteel_sheet": 10
@@ -264,7 +264,7 @@
     },
     "plasteel_beam": {
       "name": "Plasteel Beam",
-      "aliases": ["beam"],
+      "aliases": ["pbeam", "pbe"],
       "output": 1,
       "materials": {
         "plasteel_bar": 10
@@ -274,7 +274,7 @@
     },
     "plasteel_block": {
       "name": "Plasteel Block",
-      "aliases": ["block"],
+      "aliases": ["pblock", "pbl"],
       "output": 1,
       "materials": {
         "plasteel_beam": 10
@@ -304,7 +304,7 @@
     },
     "motherboard": {
       "name": "Motherboard",
-      "aliases": ["mobo"],
+      "aliases": ["board", "mb"],
       "output": 1,
       "materials": {
         "processor": 10
@@ -324,7 +324,7 @@
     },
     "plasma_slag": {
       "name": "Plasma Slag",
-      "aliases": ["plslag", "slag"],
+      "aliases": ["pslag", "psl"],
       "output": 1,
       "materials": {
         "plasma": 10
@@ -334,7 +334,7 @@
     },
     "plasma_charge": {
       "name": "Plasma Charge",
-      "aliases": ["pcharge", "charge"],
+      "aliases": ["pcharge", "pch"],
       "output": 1,
       "materials": {
         "plasma_slag": 10
@@ -344,7 +344,7 @@
     },
     "plasma_core": {
       "name": "Plasma Core",
-      "aliases": ["pcore", "core"],
+      "aliases": ["pcore", "pco"],
       "output": 1,
       "materials": {
         "plasma_charge": 10
@@ -354,7 +354,7 @@
     },
     "plasma_module": {
       "name": "Plasma Module",
-      "aliases": ["pmodule", "module"],
+      "aliases": ["pmodule", "pmod", "pm"],
       "output": 1,
       "materials": {
         "plasma_core": 10
@@ -374,7 +374,7 @@
     },
     "bio_gel": {
       "name": "Bio Gel",
-      "aliases": ["biogel", "gel"],
+      "aliases": ["gel"],
       "output": 1,
       "materials": {
         "biopolymer": 10
@@ -394,7 +394,7 @@
     },
     "bio_material_block": {
       "name": "Bio-Material Block",
-      "aliases": ["bmb", "block"],
+      "aliases": ["bioblock", "bmb"],
       "output": 1,
       "materials": {
         "bio_metal_hybrid": 10
