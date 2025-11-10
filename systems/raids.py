@@ -26,10 +26,52 @@ def load_state() -> Dict[str, Any]:
     state.setdefault("battery", {"progress": 0, "target": 1000, "last_update": int(time.time()), "contributors": {}})
     state.setdefault("active", None)  # or dict with boss
     state.setdefault("history", [])
+    
+    # MIGRATION: Run migration on load to handle structure changes
+    _migrate_raid_data(state)
+    
     return state
 
 def save_state(state: Dict[str, Any]):
     _save_json(RAIDS_FILE, state)
+
+def _migrate_raid_data(state: Dict[str, Any]):
+    """
+    Migrate old raid data structures to new format.
+    This ensures compatibility when deploying changes to an active raid.
+    """
+    active = state.get("active")
+    if not active:
+        return  # No active raid to migrate
+    
+    # Migrate mega weapon contributors
+    mega = active.get("mega", {})
+    for weapon_key, weapon_data in mega.items():
+        contribs = weapon_data.get("contributors", {})
+        for uid, data in list(contribs.items()):
+            # Old format: uid -> int (just units count)
+            # New format: uid -> {"units": int, "timestamps": []}
+            if isinstance(data, int):
+                contribs[uid] = {"units": data, "timestamps": []}
+            elif isinstance(data, dict):
+                # Ensure all required fields exist
+                if "units" not in data:
+                    data["units"] = 0
+                if "timestamps" not in data:
+                    data["timestamps"] = []
+        
+        # Remove deprecated last_charge_ts field
+        weapon_data.pop("last_charge_ts", None)
+    
+    # Migrate personal batteries
+    personal = active.get("personal", {})
+    for uid, battery in personal.items():
+        # Remove deprecated last_charge_ts field
+        battery.pop("last_charge_ts", None)
+        
+        # Initialize attack_cooldown for existing batteries
+        if battery.get("last_attack_ts", 0) > 0 and "attack_cooldown" not in battery:
+            battery["attack_cooldown"] = PERSONAL_ATTACK_COOLDOWN_SEC
 
 # Tuning
 BATTERY_TARGET_BASE = 1000         # base units to fill 100%
@@ -58,21 +100,21 @@ def boss_hp_for_active(active_players: int) -> int:
 
 # Personal artillery battery tuning
 PERSONAL_TARGET_UNITS = 100              # 100 units = 100% charge
+PERSONAL_MAX_CHARGE = 200                # Max 200% charge (overcharge allowed)
 PERSONAL_FULL_DAMAGE_FRAC = 0.005        # 0.5% boss max HP at 100%
-PERSONAL_ATTACK_COOLDOWN_SEC = 60 * 60   # 60 minutes cooldown after firing (before charging again)
-PERSONAL_CHARGE_COOLDOWN_SEC = 5 * 60    # 5 minutes between charge actions
+PERSONAL_ATTACK_COOLDOWN_SEC = 60 * 60   # 60 minutes base cooldown after firing
 
 # Charge conversion (per design spec)
-# Personal: 1 unit per 10 material OR per 0.2% total scrap (wallet + bank balance)
-PERSONAL_MATERIALS_PER_UNIT = 10
-PERSONAL_SCRAP_PERCENT_PER_UNIT = 0.2    # percent of total scrap (wallet+bank)
+# Personal: 1 unit per 0.2% total materials OR per 0.2% total scrap (wallet + bank balance)
+PERSONAL_MATERIALS_PERCENT_PER_UNIT = 0.2    # percent of total materials in inventory
+PERSONAL_SCRAP_PERCENT_PER_UNIT = 0.2        # percent of total scrap (wallet+bank)
 
-# Mega weapons: 1 unit per 100 material OR per 0.5% total scrap (wallet + bank balance)
+# Mega weapons: 1 unit per 0.5% total materials OR per 0.5% total scrap (wallet + bank balance)
 MEGA_TARGET_UNITS = 100                  # Each firing requires 100 units
 MEGA_DAMAGE_FRAC = 0.10                  # 10% boss max HP per firing
-MEGA_MATERIALS_PER_UNIT = 100
-MEGA_SCRAP_PERCENT_PER_UNIT = 0.5        # percent of total scrap (wallet+bank)
-MEGA_CHARGE_COOLDOWN_SEC = 60 * 60       # 1 hour cooldown after charging mega-weapon
+MEGA_MATERIALS_PERCENT_PER_UNIT = 0.5        # percent of total materials in inventory
+MEGA_SCRAP_PERCENT_PER_UNIT = 0.5            # percent of total scrap (wallet+bank)
+MEGA_HOURLY_CONTRIBUTION_LIMIT = 10          # Max 10% contribution per player per hour
 
 MEGA_WEAPON_KEYS = {
     "scrap": "ATM Machine",
@@ -83,7 +125,7 @@ MEGA_WEAPON_KEYS = {
 }
 
 # Rewards (rank band payouts)
-BASE_REWARD_POOL_SCRAP = 5_000_000    # base pool for successful raid
+BASE_REWARD_POOL_SCRAP = 500_000_000    # base pool for successful raid
 CONSOLATION_POOL_FRACTION = 0.10   # if fail, pay 10% of pool
 
 # Rank band payout structure (can be tweaked)
@@ -96,6 +138,16 @@ RANK_BANDS = [
     (999, 0.02),  # Ranks 11+: 2% each
 ]
 
+# Supply crate rewards by rank band
+# Format: {rank_band: {item_id: quantity}}
+SUPPLY_CRATE_REWARDS = {
+    1: {"305": 1, "304": 3, "303": 5, "302": 10, "301": 20, "300": 30},  # Rank 1: 1 solar, 3 legendary, 5 mythic, 10 rare, 20 uncommon, 30 common
+    2: {"304": 2, "303": 5, "302": 10, "301": 15, "300": 20},            # Ranks 2-3: 2 legendary, 5 mythic, 10 rare, 15 uncommon, 20 common
+    3: {"304": 1, "303": 3, "302": 5, "301": 10, "300": 15},             # Ranks 4-5: 1 legendary, 3 mythic, 5 rare, 10 uncommon, 15 common
+    4: {"303": 3, "302": 5, "301": 10, "300": 15},                       # Ranks 6-10: 3 mythic, 5 rare, 10 uncommon, 15 common
+    5: {"303": 1, "302": 3, "301": 5, "300": 10},                        # Ranks 11+: 1 mythic, 3 rare, 5 uncommon, 10 common
+}
+
 def _now() -> int:
     return int(time.time())
 
@@ -105,7 +157,27 @@ def _init_personal_container(active: Dict[str, Any]):
 def _init_mega_container(active: Dict[str, Any]):
     mega = active.setdefault("mega", {})
     for k, name in MEGA_WEAPON_KEYS.items():
-        mega.setdefault(k, {"name": name, "progress": 0, "target": MEGA_TARGET_UNITS, "contributors": {}, "last_charge_ts": 0})
+        # contributors now maps uid -> {"units": int, "timestamps": [list of contribution timestamps]}
+        entry = mega.setdefault(k, {"name": name, "progress": 0, "target": MEGA_TARGET_UNITS, "contributors": {}})
+        
+        # MIGRATION: Convert old contributor format to new format
+        contribs = entry.get("contributors", {})
+        for uid, data in list(contribs.items()):
+            # Old format: uid -> int (just units)
+            # New format: uid -> {"units": int, "timestamps": []}
+            if isinstance(data, int):
+                # Migrate old format
+                contribs[uid] = {"units": data, "timestamps": []}
+            elif isinstance(data, dict) and "timestamps" not in data:
+                # Partial migration - has units but no timestamps
+                if "units" not in data:
+                    # Very old format stored as dict but without proper structure
+                    contribs[uid] = {"units": 0, "timestamps": []}
+                else:
+                    data.setdefault("timestamps", [])
+        
+        # Remove old last_charge_ts field if present
+        entry.pop("last_charge_ts", None)
     return mega
 
 def _recalc_battery_target(state: Dict[str, Any], active_player_count: int | None = None):
@@ -234,44 +306,70 @@ def _record_damage(active: Dict[str, Any], uid: str, dmg: int, personal_units: i
 
 def _get_personal(active: Dict[str, Any], uid: str) -> Dict[str, Any]:
     _init_personal_container(active)
-    return active["personal"].setdefault(str(uid), {"progress": 0, "target": PERSONAL_TARGET_UNITS, "last_attack_ts": 0, "last_charge_ts": 0, "total_units": 0})
+    battery = active["personal"].setdefault(str(uid), {"progress": 0, "target": PERSONAL_TARGET_UNITS, "last_attack_ts": 0, "total_units": 0})
+    
+    # MIGRATION: Remove old last_charge_ts field (no longer used)
+    battery.pop("last_charge_ts", None)
+    
+    # MIGRATION: Initialize attack_cooldown if not present (for existing batteries on cooldown)
+    # If they have a last_attack_ts but no attack_cooldown, set default
+    if battery.get("last_attack_ts", 0) > 0 and "attack_cooldown" not in battery:
+        battery["attack_cooldown"] = PERSONAL_ATTACK_COOLDOWN_SEC  # Default to base cooldown
+    
+    return battery
 
 def personal_percent(b: Dict[str, Any]) -> int:
+    """Calculate personal battery charge percentage (can exceed 100%, max 200%)."""
     tgt = max(1, int(b.get("target", PERSONAL_TARGET_UNITS)))
     prog = int(b.get("progress", 0))
-    return int(min(100, math.floor(100.0 * prog / tgt)))
+    return int(min(PERSONAL_MAX_CHARGE, math.floor(100.0 * prog / tgt)))
 
 def can_charge_personal(b: Dict[str, Any]) -> Tuple[bool, int]:
-    """Check if personal battery can be charged. Returns (can_charge, cooldown_remaining_sec)."""
-    # Check attack cooldown (1 hour after firing)
+    """
+    Check if personal battery can be charged. Returns (can_charge, cooldown_remaining_sec).
+    Now only checks attack cooldown - no cooldown between charges.
+    """
+    # Check attack cooldown (base 1 hour after firing, scales with overcharge)
     last_attack = int(b.get("last_attack_ts", 0))
-    if last_attack and _now() - last_attack < PERSONAL_ATTACK_COOLDOWN_SEC:
-        cd = PERSONAL_ATTACK_COOLDOWN_SEC - (_now() - last_attack)
-        return (False, cd)
-    # Check charge cooldown (5 min between charges)
-    last_charge = int(b.get("last_charge_ts", 0))
-    if last_charge and _now() - last_charge < PERSONAL_CHARGE_COOLDOWN_SEC:
-        cd = PERSONAL_CHARGE_COOLDOWN_SEC - (_now() - last_charge)
-        return (False, cd)
+    if last_attack:
+        # Get the cooldown that was set when attacking
+        attack_cd = int(b.get("attack_cooldown", PERSONAL_ATTACK_COOLDOWN_SEC))
+        if _now() - last_attack < attack_cd:
+            cd = attack_cd - (_now() - last_attack)
+            return (False, cd)
     return (True, 0)
 
-def charge_personal_from_materials(state: Dict[str, Any], uid: str, units: int) -> Tuple[int, int]:
-    """Charge personal battery. Returns (percent_after, cooldown_remaining_sec)."""
+def charge_personal_from_materials(state: Dict[str, Any], uid: str, units: int) -> Tuple[int, int, int]:
+    """
+    Charge personal battery. Allows overcharge up to 200%.
+    Returns (percent_after, cooldown_remaining_sec, units_capped) where units_capped is actual units added.
+    """
     act = state.get("active")
     if not act or not is_active(state):
-        return (0, 0)
+        return (0, 0, 0)
     b = _get_personal(act, uid)
     can_charge, cd = can_charge_personal(b)
     if not can_charge:
-        return (personal_percent(b), cd)
+        return (personal_percent(b), cd, 0)
+    
     add = max(0, int(units))
-    b["progress"] = int(b.get("progress", 0)) + add
+    current_progress = int(b.get("progress", 0))
+    target = int(b.get("target", PERSONAL_TARGET_UNITS))
+    max_progress = target * PERSONAL_MAX_CHARGE // 100  # 200% = 200 units
+    
+    # Cap to max charge
+    if current_progress + add > max_progress:
+        add = max(0, max_progress - current_progress)
+    
+    b["progress"] = current_progress + add
     b["total_units"] = int(b.get("total_units", 0)) + add
-    b["last_charge_ts"] = _now()
-    return (personal_percent(b), 0)
+    return (personal_percent(b), 0, add)
 
 def attack_personal(state: Dict[str, Any], uid: str) -> Tuple[int, int, int, int]:
-    """Fire personal artillery. Returns (damage, hp_after, percent_used, cooldown_remaining)."""
+    """
+    Fire personal artillery. Returns (damage, hp_after, percent_used, cooldown_remaining).
+    Cooldown scales with overcharge: base 60min at 100%, +50% at 200% (linear scaling).
+    """
     act = state.get("active")
     if not act or not is_active(state):
         return (0, 0 if act is None else int(getattr(act, "hp", 0)), 0, 0)
@@ -279,23 +377,39 @@ def attack_personal(state: Dict[str, Any], uid: str) -> Tuple[int, int, int, int
     pct = personal_percent(b)
     # Cooldown check
     last = int(b.get("last_attack_ts", 0))
-    if last and _now() - last < PERSONAL_ATTACK_COOLDOWN_SEC:
-        remaining = PERSONAL_ATTACK_COOLDOWN_SEC - (_now() - last)
-        return (0, int(act.get("hp", 0)), pct, remaining)
+    if last:
+        attack_cd = int(b.get("attack_cooldown", PERSONAL_ATTACK_COOLDOWN_SEC))
+        if _now() - last < attack_cd:
+            remaining = attack_cd - (_now() - last)
+            return (0, int(act.get("hp", 0)), pct, remaining)
     if pct <= 0:
         return (0, int(act.get("hp", 0)), pct, 0)
-    # Damage proportional to percent (linear)
+    
+    # Damage proportional to percent (linear, caps at 200%)
     hp_max = int(act.get("hp_max", 1))
     dmg_full = int(math.floor(hp_max * PERSONAL_FULL_DAMAGE_FRAC))
+    # Scale damage: 100% = 1.0x, 200% = 2.0x
     dmg = int(math.floor(dmg_full * (pct / 100.0)))
     cur = int(act.get("hp", 0))
     new_hp = max(0, cur - max(0, dmg))
     act["hp"] = new_hp
+    
+    # Calculate cooldown based on charge level
+    # At 100%: base cooldown (60min)
+    # At 200%: base + 50% = 90min
+    # Linear scaling: cooldown = base * (1 + 0.5 * ((pct - 100) / 100))
+    if pct <= 100:
+        cooldown = PERSONAL_ATTACK_COOLDOWN_SEC
+    else:
+        overcharge_factor = (pct - 100) / 100.0  # 0.0 at 100%, 1.0 at 200%
+        cooldown = int(PERSONAL_ATTACK_COOLDOWN_SEC * (1 + 0.5 * overcharge_factor))
+    
     # Record damage & reset battery
     units_used = int(b.get("progress", 0))
     _record_damage(act, uid, dmg, personal_units=units_used)
     b["progress"] = 0
     b["last_attack_ts"] = _now()
+    b["attack_cooldown"] = cooldown  # Store for next cooldown check
     return (dmg, new_hp, pct, 0)
 
 def get_personal_status(state: Dict[str, Any], uid: str) -> Tuple[int, int]:
@@ -307,8 +421,10 @@ def get_personal_status(state: Dict[str, Any], uid: str) -> Tuple[int, int]:
     pct = personal_percent(b)
     last = int(b.get("last_attack_ts", 0))
     cd = 0
-    if last and _now() - last < PERSONAL_ATTACK_COOLDOWN_SEC:
-        cd = PERSONAL_ATTACK_COOLDOWN_SEC - (_now() - last)
+    if last:
+        attack_cd = int(b.get("attack_cooldown", PERSONAL_ATTACK_COOLDOWN_SEC))
+        if _now() - last < attack_cd:
+            cd = attack_cd - (_now() - last)
     return (pct, cd)
 
 def mega_percent(entry: Dict[str, Any]) -> int:
@@ -316,34 +432,62 @@ def mega_percent(entry: Dict[str, Any]) -> int:
     prog = int(entry.get("progress", 0))
     return int(min(100, math.floor(100.0 * prog / tgt)))
 
-def charge_mega(state: Dict[str, Any], uid: str, key: str, units: int) -> Tuple[int, bool, int, int]:
-    """Charge a mega weapon. Returns (percent_after, fired, damage_if_fired, cooldown_remaining_sec)."""
+def charge_mega(state: Dict[str, Any], uid: str, key: str, units: int) -> Tuple[int, bool, int, str, int]:
+    """
+    Charge a mega weapon with 10% per hour rate limiting per player.
+    Returns (percent_after, fired, damage_if_fired, rate_limit_msg, units_actually_added).
+    """
     act = state.get("active")
     if not act or not is_active(state):
-        return (0, False, 0, 0)
+        return (0, False, 0, "", 0)
     mega = _init_mega_container(act)
     if key not in mega:
-        return (0, False, 0, 0)
+        return (0, False, 0, "", 0)
     entry = mega[key]
     
-    # Check cooldown (1 hour after last charge)
-    last_charge = int(entry.get("last_charge_ts", 0))
-    if last_charge and _now() - last_charge < MEGA_CHARGE_COOLDOWN_SEC:
-        cd = MEGA_CHARGE_COOLDOWN_SEC - (_now() - last_charge)
-        return (mega_percent(entry), False, 0, cd)
+    # Get player's contribution history for rate limiting
+    contribs = entry.setdefault("contributors", {})
+    user_contrib = contribs.setdefault(str(uid), {"units": 0, "timestamps": []})
     
+    # Clean up old timestamps (older than 1 hour)
+    timestamps = user_contrib.get("timestamps", [])
+    one_hour_ago = _now() - 3600
+    timestamps = [ts for ts in timestamps if ts > one_hour_ago]
+    user_contrib["timestamps"] = timestamps
+    
+    # Calculate how many units contributed in last hour
+    units_last_hour = len(timestamps)  # Each timestamp represents 1 unit contributed
+    max_units_per_hour = MEGA_TARGET_UNITS * MEGA_HOURLY_CONTRIBUTION_LIMIT // 100  # 10% of 100 = 10 units
+    
+    # Check rate limit
+    rate_limit_msg = ""
     add = max(0, int(units))
     if add <= 0:
-        return (mega_percent(entry), False, 0, 0)
-    entry["progress"] = int(entry.get("progress", 0)) + add
-    entry["last_charge_ts"] = _now()
+        return (mega_percent(entry), False, 0, "", 0)
     
-    # Track contributor units for attribution when firing
-    contribs = entry.setdefault("contributors", {})
-    contribs[str(uid)] = int(contribs.get(str(uid), 0)) + add
+    # Cap contribution to rate limit
+    if units_last_hour >= max_units_per_hour:
+        return (mega_percent(entry), False, 0, "⏱️ Rate limit: max 10% per hour already reached. Try again later.", 0)
+    
+    available_capacity = max_units_per_hour - units_last_hour
+    if add > available_capacity:
+        add = available_capacity
+        rate_limit_msg = f"⚠️ Contribution capped to {add} units (10% per hour limit)."
+    
+    # Add contribution
+    entry["progress"] = int(entry.get("progress", 0)) + add
+    
+    # Track contribution with timestamps
+    for _ in range(add):
+        timestamps.append(_now())
+    user_contrib["timestamps"] = timestamps
+    user_contrib["units"] = int(user_contrib.get("units", 0)) + add
+    
     pct = mega_percent(entry)
     fired = False
     damage_done = 0
+    
+    # Check if weapon fires
     if entry["progress"] >= entry.get("target", MEGA_TARGET_UNITS):
         # Fire
         hp_max = int(act.get("hp_max", 1))
@@ -351,26 +495,75 @@ def charge_mega(state: Dict[str, Any], uid: str, key: str, units: int) -> Tuple[
         cur = int(act.get("hp", 0))
         act["hp"] = max(0, cur - damage_done)
         fired = True
+        
         # Attribute damage proportionally to contributors
-        total_units = sum(int(v) for v in contribs.values()) or 1
-        for cid, units_c in contribs.items():
-            portion = damage_done * (units_c / total_units)
-            _record_damage(act, cid, int(math.floor(portion)), mega_units=units_c)
+        total_units = sum(int(c.get("units", 0)) for c in contribs.values()) or 1
+        for cid, c_data in contribs.items():
+            units_c = int(c_data.get("units", 0))
+            if units_c > 0:
+                portion = damage_done * (units_c / total_units)
+                _record_damage(act, cid, int(math.floor(portion)), mega_units=units_c)
+        
         # Reset weapon
         entry["progress"] = 0
         entry["contributors"] = {}
-        entry["last_charge_ts"] = 0  # Reset cooldown on fire
         pct = mega_percent(entry)
-    return (pct, fired, damage_done, 0)
+    
+    return (pct, fired, damage_done, rate_limit_msg, add)
 
 def calculate_scrap_total(profile: Dict[str, Any]) -> int:
+    """Calculate total scrap (wallet + bank balance)."""
     if not isinstance(profile, dict):
         return 0
     wallet = int(profile.get("Scrap", 0) or 0)
     bank_bal = int(((profile.get("bank") or {}).get("balance") or 0))
     return wallet + bank_bal
 
-def convert_to_personal_units(resource_key: str, amount: int, total_scrap: int) -> int:
+def calculate_material_total(profile: Dict[str, Any], material_key: str) -> int:
+    """Calculate total of a specific material in inventory."""
+    if not isinstance(profile, dict):
+        return 0
+    inv = profile.get("inventory", {})
+    return int(inv.get(material_key, 0) or 0)
+
+def parse_amount(amount_str: str, total_available: int) -> int:
+    """
+    Parse amount string supporting k/m/b/half/all.
+    Returns the parsed integer amount, capped at total_available.
+    """
+    s = str(amount_str).lower().strip()
+    
+    # Handle special keywords
+    if s in ("all", "max"):
+        return total_available
+    if s in ("half", "h"):
+        return total_available // 2
+    
+    # Handle numeric with suffix
+    multiplier = 1
+    if s.endswith('k'):
+        multiplier = 1_000
+        s = s[:-1]
+    elif s.endswith('m'):
+        multiplier = 1_000_000
+        s = s[:-1]
+    elif s.endswith('b'):
+        multiplier = 1_000_000_000
+        s = s[:-1]
+    
+    try:
+        base = float(s)
+        result = int(base * multiplier)
+        return min(result, total_available)
+    except:
+        return 0
+
+def convert_to_personal_units(resource_key: str, amount: int, total_scrap: int, total_materials: int = 0) -> int:
+    """
+    Convert resource amount to personal battery charge units.
+    - Scrap: based on % of total scrap (wallet + bank)
+    - Materials: based on % of total materials in inventory
+    """
     if resource_key == "scrap":
         if total_scrap <= 0:
             return 0
@@ -379,45 +572,143 @@ def convert_to_personal_units(resource_key: str, amount: int, total_scrap: int) 
         units = int(math.floor(percent / PERSONAL_SCRAP_PERCENT_PER_UNIT))
         return max(0, units)
     # materials
-    units = int(math.floor(amount / PERSONAL_MATERIALS_PER_UNIT))
+    if total_materials <= 0:
+        return 0
+    percent = (amount / max(1, total_materials)) * 100.0
+    units = int(math.floor(percent / PERSONAL_MATERIALS_PERCENT_PER_UNIT))
     return max(0, units)
 
-def convert_to_mega_units(resource_key: str, amount: int, total_scrap: int) -> int:
+def convert_to_mega_units(resource_key: str, amount: int, total_scrap: int, total_materials: int = 0) -> int:
+    """
+    Convert resource amount to mega weapon charge units.
+    - Scrap: based on % of total scrap (wallet + bank)
+    - Materials: based on % of total materials in inventory
+    """
     if resource_key == "scrap":
         if total_scrap <= 0:
             return 0
         percent = (amount / max(1, total_scrap)) * 100.0
         units = int(math.floor(percent / MEGA_SCRAP_PERCENT_PER_UNIT))
         return max(0, units)
-    units = int(math.floor(amount / MEGA_MATERIALS_PER_UNIT))
+    # materials
+    if total_materials <= 0:
+        return 0
+    percent = (amount / max(1, total_materials)) * 100.0
+    units = int(math.floor(percent / MEGA_MATERIALS_PERCENT_PER_UNIT))
     return max(0, units)
 
-def _payout(active: Dict[str, Any]) -> Dict[str, int]:
+def get_charge_preview_personal(resource_key: str, amount: int, total_scrap: int, total_materials: int, current_percent: int) -> Dict[str, Any]:
     """
-    Compute payouts (Scrap) by uid using rank bands.
+    Calculate preview info for personal battery charging.
+    Returns dict with: units, percent_gain, cost_per_unit, will_overcharge, final_percent, capped_amount
+    """
+    units = convert_to_personal_units(resource_key, amount, total_scrap, total_materials)
+    percent_gain = units  # 1 unit = 1%
+    final_percent = min(PERSONAL_MAX_CHARGE, current_percent + percent_gain)
+    will_overcharge = final_percent > 100
+    
+    # Calculate cost per 1 unit (1%)
+    if resource_key == "scrap":
+        cost_per_unit = int(math.ceil(total_scrap * PERSONAL_SCRAP_PERCENT_PER_UNIT / 100))
+    else:
+        cost_per_unit = int(math.ceil(total_materials * PERSONAL_MATERIALS_PERCENT_PER_UNIT / 100))
+    
+    # Check if capped by max charge
+    max_units_allowed = (PERSONAL_MAX_CHARGE - current_percent)
+    capped_units = min(units, max_units_allowed)
+    capped_amount = amount if capped_units == units else int(capped_units * cost_per_unit)
+    
+    return {
+        "units": capped_units,
+        "percent_gain": capped_units,
+        "cost_per_unit": cost_per_unit,
+        "will_overcharge": will_overcharge,
+        "final_percent": min(PERSONAL_MAX_CHARGE, current_percent + capped_units),
+        "capped_amount": capped_amount,
+        "was_capped": capped_units < units
+    }
+
+def get_charge_preview_mega(resource_key: str, amount: int, total_scrap: int, total_materials: int, current_percent: int, units_contributed_last_hour: int) -> Dict[str, Any]:
+    """
+    Calculate preview info for mega weapon charging.
+    Returns dict with: units, percent_gain, cost_per_unit, will_fire, rate_limited, capped_amount, available_capacity
+    """
+    units = convert_to_mega_units(resource_key, amount, total_scrap, total_materials)
+    percent_gain = units  # 1 unit = 1%
+    will_fire = (current_percent + percent_gain) >= 100
+    
+    # Calculate cost per 1 unit (1%)
+    if resource_key == "scrap":
+        cost_per_unit = int(math.ceil(total_scrap * MEGA_SCRAP_PERCENT_PER_UNIT / 100))
+    else:
+        cost_per_unit = int(math.ceil(total_materials * MEGA_MATERIALS_PERCENT_PER_UNIT / 100))
+    
+    # Check rate limit (10% per hour)
+    max_units_per_hour = MEGA_TARGET_UNITS * MEGA_HOURLY_CONTRIBUTION_LIMIT // 100  # 10 units
+    available_capacity = max(0, max_units_per_hour - units_contributed_last_hour)
+    
+    rate_limited = units > available_capacity
+    capped_units = min(units, available_capacity)
+    capped_amount = amount if capped_units == units else int(capped_units * cost_per_unit)
+    
+    return {
+        "units": capped_units,
+        "percent_gain": capped_units,
+        "cost_per_unit": cost_per_unit,
+        "will_fire": (current_percent + capped_units) >= 100,
+        "rate_limited": rate_limited,
+        "capped_amount": capped_amount,
+        "available_capacity": available_capacity
+    }
+
+def _payout(active: Dict[str, Any]) -> Tuple[Dict[str, int], Dict[str, Dict[str, int]]]:
+    """
+    Compute payouts (Scrap and Supply Crates) by uid using rank bands.
+    Returns (scrap_payouts, supply_crate_payouts) where:
+    - scrap_payouts: {uid: scrap_amount}
+    - supply_crate_payouts: {uid: {item_id: quantity}}
     """
     contribs = active.get("contributors", {})
     if not contribs:
-        return {}
+        return ({}, {})
     
     # Sort by damage descending
     ranked = sorted(contribs.items(), key=lambda kv: -int(kv[1].get("damage", 0)))
     pool = int(active.get("reward_pool", BASE_REWARD_POOL_SCRAP))
-    payouts: Dict[str, int] = {}
+    scrap_payouts: Dict[str, int] = {}
+    crate_payouts: Dict[str, Dict[str, int]] = {}
     
     for rank, (uid, ent) in enumerate(ranked, 1):
         # Find the band for this rank
         reward_frac = 0.0
+        band_num = 5  # default to band 5 (11+)
         for max_rank, frac in RANK_BANDS:
             if rank <= max_rank:
                 reward_frac = frac
+                # Determine band number for supply crate rewards
+                if max_rank == 1:
+                    band_num = 1
+                elif max_rank == 3:
+                    band_num = 2
+                elif max_rank == 5:
+                    band_num = 3
+                elif max_rank == 10:
+                    band_num = 4
+                else:
+                    band_num = 5
                 break
         
+        # Scrap payout
         amt = int(math.floor(pool * reward_frac))
         if amt > 0:
-            payouts[str(uid)] = amt
+            scrap_payouts[str(uid)] = amt
+        
+        # Supply crate payout
+        crate_rewards = SUPPLY_CRATE_REWARDS.get(band_num, {})
+        if crate_rewards:
+            crate_payouts[str(uid)] = dict(crate_rewards)
     
-    return payouts
+    return (scrap_payouts, crate_payouts)
 
 def maybe_finalize(state: Dict[str, Any]) -> Dict[str, Any] | None:
     """
@@ -442,13 +733,13 @@ def maybe_finalize(state: Dict[str, Any]) -> Dict[str, Any] | None:
     success = (reason == "defeated")
     # compute payouts
     if success:
-        payouts = _payout(act)
+        scrap_payouts, crate_payouts = _payout(act)
     else:
         # consolation pool: 10%
         pool = int(max(0, int(act.get("reward_pool", BASE_REWARD_POOL_SCRAP)) * CONSOLATION_POOL_FRACTION))
         act2 = dict(act)
         act2["reward_pool"] = pool
-        payouts = _payout(act2)
+        scrap_payouts, crate_payouts = _payout(act2)
 
     summary = {
         "raid_id": act.get("raid_id"),
@@ -457,7 +748,8 @@ def maybe_finalize(state: Dict[str, Any]) -> Dict[str, Any] | None:
         "duration": int(max(0, _now() - int(act.get("started_at", _now())))),
         "reason": reason,
         "success": success,
-        "payouts": payouts,  # uid -> scrap
+        "payouts": scrap_payouts,  # uid -> scrap
+        "crate_payouts": crate_payouts,  # uid -> {item_id: quantity}
         "top": sorted(((uid, int(e.get("damage", 0))) for uid, e in act.get("contributors", {}).items()), key=lambda kv: -kv[1])[:10],
         "ended_at": _now(),
         "claimed": [],  # track who has claimed payouts
@@ -468,19 +760,23 @@ def maybe_finalize(state: Dict[str, Any]) -> Dict[str, Any] | None:
     state["active"] = None
     return summary
 
-def claim_payout(state: Dict[str, Any], uid: str) -> Tuple[int, Dict[str, Any]]:
-    """Allow a player to claim their payout from the most recent summary. Returns (amount, summary)."""
+def claim_payout(state: Dict[str, Any], uid: str) -> Tuple[int, Dict[str, int], Dict[str, Any]]:
+    """
+    Allow a player to claim their payout from the most recent summary. 
+    Returns (scrap_amount, supply_crates_dict, summary) where supply_crates_dict is {item_id: quantity}.
+    """
     hist = state.get("history", [])
     if not hist:
-        return (0, {})
+        return (0, {}, {})
     latest = hist[-1]
     if state.get("active") is not None:  # cannot claim while active raid
-        return (0, latest)
+        return (0, {}, latest)
     claimed = latest.setdefault("claimed", [])
     if str(uid) in claimed:
-        return (0, latest)
-    amount = int(latest.get("payouts", {}).get(str(uid), 0))
-    if amount > 0:
+        return (0, {}, latest)
+    scrap_amount = int(latest.get("payouts", {}).get(str(uid), 0))
+    crate_rewards = latest.get("crate_payouts", {}).get(str(uid), {})
+    if scrap_amount > 0 or crate_rewards:
         claimed.append(str(uid))
-    return (amount, latest)
+    return (scrap_amount, crate_rewards, latest)
 
