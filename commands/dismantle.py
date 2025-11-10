@@ -24,18 +24,22 @@ class Dismantle(commands.Cog):
             await ctx.send("❌ Usage: `!dismantle <item name> [amount]`")
             return
 
-        # Try parsing last part as amount (supports k/m/b, all, half, numbers)
-        parsed_amount = parse_amount(parts[-1]) if len(parts) > 1 else None
-        
-        if parsed_amount is not None:
-            item_name = " ".join(parts[:-1])
-            amount = parsed_amount
+        # Separate item name and amount string
+        if len(parts) > 1:
+            # Check if last part could be an amount
+            potential_amount = parts[-1].lower()
+            if potential_amount in ['all', 'half', 'max'] or potential_amount[-1:] in ['k', 'm', 'b'] or potential_amount.replace('.', '').isdigit():
+                item_name = " ".join(parts[:-1])
+                amount_str = potential_amount
+            else:
+                item_name = " ".join(parts)
+                amount_str = None
         else:
             item_name = " ".join(parts)
-            amount = 1
+            amount_str = None
 
         player = ctx.player
-        result = dismantle_item(player, item_name, amount)
+        result = dismantle_item(player, item_name, amount_str)
 
         embed = discord.Embed(
             title="🧰 Dismantle",

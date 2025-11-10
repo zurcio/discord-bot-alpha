@@ -56,18 +56,20 @@ class Craft(commands.Cog):
             await ctx.send(f"{ctx.author.mention} ❌ You must specify an item to craft. Example: `!craft Plasteel Sheet 2`.")
             return
 
-        # --- Split into item name + amount ---
+        # --- Split into item name + amount string ---
         parts = item_and_amount.rsplit(" ", 1)
+        amount_str = None
         if len(parts) == 2:
-            # Try to parse as amount (supports k/m/b, all, half, numbers)
-            parsed_amount = parse_amount(parts[1])
-            if parsed_amount is not None:
-                item_name, amount = parts[0], parsed_amount
+            # Check if last part looks like an amount
+            potential_amount = parts[1].lower()
+            if potential_amount in ['all', 'half', 'max'] or potential_amount[-1:] in ['k', 'm', 'b'] or potential_amount.replace('.', '').isdigit():
+                item_name = parts[0]
+                amount_str = potential_amount
             else:
-                # Not a valid amount, treat whole string as item name
-                item_name, amount = item_and_amount, 1
+                # Not an amount, treat whole string as item name
+                item_name = item_and_amount
         else:
-            item_name, amount = item_and_amount, 1
+            item_name = item_and_amount
 
         item_name = item_name.lower().strip()
 
@@ -118,20 +120,28 @@ class Craft(commands.Cog):
             nk = _norm_key(req_key)
             return inv_index.get(nk)
 
-        # --- Determine craft amount ---
-        if isinstance(amount, str) and amount.lower() == "all":
-            max_craft = float("inf")
-            for mat_id, qty_needed in recipe["materials"].items():
-                have = available_for(mat_id)
-                max_craft = min(max_craft, have // int(qty_needed))
-            amount_to_craft = int(max_craft) if max_craft != float("inf") and max_craft > 0 else 0
-            if amount_to_craft == 0:
-                await ctx.send(f"{ctx.author.mention} ❌ You don't have enough materials to craft any {recipe.get('name', recipe_key)}.")
-                return
-        elif isinstance(amount, int):
-            amount_to_craft = max(1, amount)
+        # --- Calculate max craftable amount (needed for "half" and "all") ---
+        max_craft = float("inf")
+        for mat_id, qty_needed in recipe["materials"].items():
+            have = available_for(mat_id)
+            max_craft = min(max_craft, have // int(qty_needed))
+        max_craft = int(max_craft) if max_craft != float("inf") and max_craft > 0 else 0
+
+        # --- Parse amount with knowledge of max_craft (for "half" calculation) ---
+        if amount_str is None:
+            amount_to_craft = 1
         else:
-            await ctx.send(f"{ctx.author.mention} ❌ Invalid amount: {amount}")
+            parsed = parse_amount(amount_str, max_possible=max_craft)
+            if parsed == "all":
+                amount_to_craft = max_craft
+            elif parsed is None:
+                await ctx.send(f"{ctx.author.mention} ❌ Invalid amount: `{amount_str}`")
+                return
+            else:
+                amount_to_craft = max(1, parsed)
+        
+        if amount_to_craft == 0:
+            await ctx.send(f"{ctx.author.mention} ❌ You don't have enough materials to craft any {recipe.get('name', recipe_key)}.")
             return
 
         # --- Check materials (includes enemy drops and scrap as currency) ---

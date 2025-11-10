@@ -3,6 +3,7 @@ from core.shared import load_json, save_json
 from core.constants import ITEMS_FILE
 from core.players import save_profile
 from core.items import resolve_item_by_name_or_alias, get_inventory_key_for_item
+from core.parsing import parse_amount
 
 DISMANTLE_RETURN_RATE = 0.8  # 80% return
 
@@ -17,7 +18,7 @@ def get_material_tiers():
     }
 
 
-def dismantle_item(player, item_name: str, amount: int | str):
+def dismantle_item(player, item_name: str, amount_input: int | str | None):
     items_data = load_json(ITEMS_FILE)
     inventory = player.get("inventory", {})
 
@@ -61,9 +62,19 @@ def dismantle_item(player, item_name: str, amount: int | str):
     
     have_qty = inventory.get(inv_key, 0)
     
-    # Handle "all" amount
-    if isinstance(amount, str) and amount.lower() == "all":
-        amount = have_qty
+    # Parse amount with knowledge of available quantity (for "half" calculation)
+    if amount_input is None:
+        amount = 1
+    elif isinstance(amount_input, str):
+        parsed = parse_amount(amount_input, max_possible=have_qty)
+        if parsed == "all":
+            amount = have_qty
+        elif parsed is None:
+            return f" Invalid amount: `{amount_input}`"
+        else:
+            amount = parsed
+    else:
+        amount = amount_input
     
     # Validate amount
     if have_qty < amount:
