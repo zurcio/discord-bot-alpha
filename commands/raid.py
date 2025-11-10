@@ -301,7 +301,7 @@ class Raid(commands.Cog):
                 cooldown_min = int(60 * (1 + 0.5 * overcharge_factor))
                 lines.append(f"⚡ **Overcharge:** Attack cooldown will be **{cooldown_min} minutes** (base 60min + {int(overcharge_factor*50)}% penalty).")
             
-            lines.append(f"\n💡 Reply with `!raid charge {resource} {amount_str} yes` to confirm or `no` to cancel.")
+            lines.append(f"\n💡 Reply with `yes` or `y` to confirm, `no` or `n` to cancel.")
             await ctx.send("\n".join(lines))
             return
 
@@ -470,7 +470,7 @@ class Raid(commands.Cog):
             if preview["will_fire"]:
                 lines.append(f"💥 **Weapon will FIRE** at the boss (10% max HP damage)!")
             
-            lines.append(f"\n💡 Reply with `!raid support {key} {amount_str} yes` to confirm or `no` to cancel.")
+            lines.append(f"\n💡 Reply with `yes` or `y` to confirm, `no` or `n` to cancel.")
             await ctx.send("\n".join(lines))
             return
 
