@@ -26,12 +26,53 @@ def _fmt_timeleft(ts: int) -> str:
 class Raid(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        # Track pending confirmations: {user_id: {"type": "charge"/"support", "data": {...}, "expires": timestamp}}
+        self.pending_confirmations = {}
+
+    def _cleanup_expired_confirmations(self):
+        """Remove confirmations older than 5 minutes."""
+        now = int(time.time())
+        expired = [uid for uid, data in self.pending_confirmations.items() if data.get("expires", 0) < now]
+        for uid in expired:
+            del self.pending_confirmations[uid]
 
     @commands.command(name="raid")
     @require_no_lock()
     async def raid(self, ctx, sub: str = "status", *args):
         sub = (sub or "status").lower()
         uid = str(ctx.author.id)
+        
+        # Clean up expired confirmations
+        self._cleanup_expired_confirmations()
+        
+        # Check if this is a simple confirmation response (yes/y/no/n)
+        if sub in ("yes", "y", "no", "n"):
+            confirm = sub in ("yes", "y")
+            pending = self.pending_confirmations.get(uid)
+            
+            if not pending:
+                await ctx.send("❌ No pending confirmation found. Confirmations expire after 5 minutes.")
+                return
+            
+            if not confirm:
+                del self.pending_confirmations[uid]
+                await ctx.send("❌ Cancelled.")
+                return
+            
+            # Process the confirmed action
+            action_type = pending.get("type")
+            data = pending.get("data", {})
+            del self.pending_confirmations[uid]
+            
+            if action_type == "charge":
+                # Execute personal battery charge
+                return await self._execute_charge(ctx, uid, data)
+            elif action_type == "support":
+                # Execute mega weapon support
+                return await self._execute_support(ctx, uid, data)
+            else:
+                await ctx.send("❌ Unknown confirmation type.")
+                return
 
         # status
         if sub in ("s", "status", ""):
@@ -162,84 +203,6 @@ class Raid(commands.Cog):
             resource = args[0].lower().strip()
             amount_str = args[1].lower().strip()
             
-            # Check for confirmation (yes/y/no/n)
-            if len(args) >= 3 and args[2].lower() in ("yes", "y", "no", "n"):
-                confirm = args[2].lower() in ("yes", "y")
-                if not confirm:
-                    await ctx.send("❌ Charge cancelled.")
-                    return
-                # Process the confirmed charge
-                set_lock(uid, "raid_charge", allowed=set(), note="raid charge")
-                try:
-                    prof = load_profile(uid) or {}
-                    inv = prof.get("inventory", {}) or {}
-                    total_scrap = calculate_scrap_total(prof)
-                    total_materials = calculate_material_total(prof, resource) if resource != "scrap" else 0
-                    
-                    # Parse amount
-                    if resource == "scrap":
-                        available = int(prof.get("Scrap", 0))
-                    else:
-                        available = int(inv.get(resource, 0))
-                    amount = parse_amount(amount_str, available)
-                    
-                    if amount <= 0:
-                        await ctx.send("❌ Invalid amount.")
-                        return
-                    
-                    # Check availability
-                    if available < amount:
-                        await ctx.send(f"❌ Not enough {resource}. You have {available:,}.")
-                        return
-                    
-                    # Get current state
-                    state = load_state()
-                    if not is_active(state):
-                        await ctx.send("❌ Raid not active yet. Global battery must reach 100%.")
-                        return
-                    
-                    # Get current charge %
-                    current_pct, cd = get_personal_status(state, uid)
-                    if cd > 0:
-                        await ctx.send(f"⏳ Cooldown active. You can charge again in {_fmt_timeleft(int(time.time())+cd)}.")
-                        return
-                    
-                    # Calculate units and preview
-                    preview = get_charge_preview_personal(resource, amount, total_scrap, total_materials, current_pct)
-                    units = preview["units"]
-                    capped_amount = preview["capped_amount"]
-                    
-                    if units <= 0:
-                        await ctx.send(f"❌ Amount too small to convert. Minimum needed: {preview['cost_per_unit']:,} {resource} for 1%.")
-                        return
-                    
-                    # Deduct capped amount
-                    if resource == "scrap":
-                        prof["Scrap"] = int(prof.get("Scrap", 0)) - capped_amount
-                    else:
-                        inv[resource] = int(inv.get(resource, 0)) - capped_amount
-                        if inv[resource] <= 0:
-                            inv.pop(resource, None)
-                        prof["inventory"] = inv
-                    
-                    # Charge battery
-                    pct_after, _, actual_units = charge_personal_from_materials(state, uid, units)
-                    save_state(state)
-                    save_profile(uid, prof)
-                    
-                    # Feedback with overcharge indication
-                    cooldown_msg = ""
-                    if pct_after > 100:
-                        # Calculate overcharge cooldown
-                        overcharge_factor = (pct_after - 100) / 100.0
-                        cooldown_sec = int(3600 * (1 + 0.5 * overcharge_factor))
-                        cooldown_msg = f"\n⚡ **Overcharged!** Attack cooldown will be {cooldown_sec//60} minutes (base 60min + overcharge penalty)."
-                    
-                    await ctx.send(f"✅ Charged **{actual_units}%** ({capped_amount:,} {resource}). Personal Battery: **{current_pct}%** → **{pct_after}%**{cooldown_msg}")
-                finally:
-                    clear_lock(uid)
-                return
-            
             # Show preview and request confirmation
             if resource not in ("scrap", "plasteel", "circuit", "plasma", "biofiber"):
                 await ctx.send("❌ Invalid resource. Use scrap/plasteel/circuit/plasma/biofiber.")
@@ -301,7 +264,20 @@ class Raid(commands.Cog):
                 cooldown_min = int(60 * (1 + 0.5 * overcharge_factor))
                 lines.append(f"⚡ **Overcharge:** Attack cooldown will be **{cooldown_min} minutes** (base 60min + {int(overcharge_factor*50)}% penalty).")
             
-            lines.append(f"\n💡 Reply with `yes` or `y` to confirm, `no` or `n` to cancel.")
+            # Store pending confirmation
+            self.pending_confirmations[uid] = {
+                "type": "charge",
+                "data": {
+                    "resource": resource,
+                    "amount": amount,
+                    "capped_amount": preview["capped_amount"],
+                    "units": preview["units"]
+                },
+                "expires": int(time.time()) + 300  # 5 minutes
+            }
+            
+            lines.append(f"\n💡 Reply with `!raid yes` or `!raid y` to confirm, `!raid no` or `!raid n` to cancel.")
+            lines.append(f"⏱️ *Confirmation expires in 5 minutes.*")
             await ctx.send("\n".join(lines))
             return
 
@@ -312,96 +288,6 @@ class Raid(commands.Cog):
                 return
             key = args[0].lower().strip()
             amount_str = args[1].lower().strip()
-            
-            # Check for confirmation (yes/y/no/n)
-            if len(args) >= 3 and args[2].lower() in ("yes", "y", "no", "n"):
-                confirm = args[2].lower() in ("yes", "y")
-                if not confirm:
-                    await ctx.send("❌ Charge cancelled.")
-                    return
-                
-                # Process the confirmed charge
-                set_lock(uid, "raid_support", allowed=set(), note="raid support")
-                try:
-                    prof = load_profile(uid) or {}
-                    inv = prof.get("inventory", {}) or {}
-                    total_scrap = calculate_scrap_total(prof)
-                    total_materials = calculate_material_total(prof, key) if key != "scrap" else 0
-                    
-                    # Parse amount
-                    if key == "scrap":
-                        available = int(prof.get("Scrap", 0))
-                    else:
-                        available = int(inv.get(key, 0))
-                    amount = parse_amount(amount_str, available)
-                    
-                    if amount <= 0:
-                        await ctx.send("❌ Invalid amount.")
-                        return
-                    
-                    if available < amount:
-                        await ctx.send(f"❌ Not enough {key}. You have {available:,}.")
-                        return
-                    
-                    # Get current state
-                    state = load_state()
-                    if not is_active(state):
-                        await ctx.send("❌ Raid not active yet.")
-                        return
-                    
-                    # Get weapon status and rate limit info
-                    mega_container = state.get("active", {}).get("mega", {})
-                    weapon_entry = mega_container.get(key, {})
-                    current_pct = int(min(100, math.floor(100.0 * weapon_entry.get("progress", 0) / max(1, weapon_entry.get("target", 100)))))
-                    
-                    # Calculate units contributed in last hour for rate limiting
-                    user_contrib = weapon_entry.get("contributors", {}).get(str(uid), {})
-                    timestamps = user_contrib.get("timestamps", [])
-                    one_hour_ago = int(time.time()) - 3600
-                    units_last_hour = len([ts for ts in timestamps if ts > one_hour_ago])
-                    
-                    # Calculate preview
-                    preview = get_charge_preview_mega(key, amount, total_scrap, total_materials, current_pct, units_last_hour)
-                    units = preview["units"]
-                    capped_amount = preview["capped_amount"]
-                    
-                    if units <= 0:
-                        if preview["rate_limited"]:
-                            await ctx.send(f"⏱️ Rate limit reached. Max {MEGA_HOURLY_CONTRIBUTION_LIMIT}% per hour. Available capacity: {preview['available_capacity']} units.")
-                        else:
-                            await ctx.send(f"❌ Amount too small to convert. Minimum needed: {preview['cost_per_unit']:,} {key} for 1%.")
-                        return
-                    
-                    # Deduct capped amount
-                    if key == "scrap":
-                        prof["Scrap"] = int(prof.get("Scrap", 0)) - capped_amount
-                    else:
-                        inv[key] = int(inv.get(key, 0)) - capped_amount
-                        if inv[key] <= 0:
-                            inv.pop(key, None)
-                        prof["inventory"] = inv
-                    
-                    # Charge weapon
-                    pct_after, fired, dmg, rate_msg, actual_units = charge_mega(state, uid, key, units)
-                    save_state(state)
-                    save_profile(uid, prof)
-                    
-                    if fired:
-                        boss_name = state.get("active", {}).get("boss_name", "the boss")
-                        await ctx.send(f"💥 {ctx.author.mention} charged the **{MEGA_WEAPON_KEYS[key]}**! It fires at **{boss_name}** for **{dmg:,} damage**!")
-                        # Check raid end
-                        state = load_state()
-                        ended = maybe_finalize(state)
-                        if ended:
-                            save_state(state)
-                            await self._payout_summary(ctx, ended)
-                        else:
-                            save_state(state)
-                    else:
-                        await ctx.send(f"✅ Charged **{actual_units}%** ({capped_amount:,} {key}). {MEGA_WEAPON_KEYS[key]}: **{current_pct}%** → **{pct_after}%**")
-                finally:
-                    clear_lock(uid)
-                return
             
             # Show preview and request confirmation
             if key not in MEGA_WEAPON_KEYS:
@@ -470,7 +356,20 @@ class Raid(commands.Cog):
             if preview["will_fire"]:
                 lines.append(f"💥 **Weapon will FIRE** at the boss (10% max HP damage)!")
             
-            lines.append(f"\n💡 Reply with `yes` or `y` to confirm, `no` or `n` to cancel.")
+            # Store pending confirmation
+            self.pending_confirmations[uid] = {
+                "type": "support",
+                "data": {
+                    "key": key,
+                    "amount": amount,
+                    "capped_amount": preview["capped_amount"],
+                    "units": preview["units"]
+                },
+                "expires": int(time.time()) + 300  # 5 minutes
+            }
+            
+            lines.append(f"\n💡 Reply with `!raid yes` or `!raid y` to confirm, `!raid no` or `!raid n` to cancel.")
+            lines.append(f"⏱️ *Confirmation expires in 5 minutes.*")
             await ctx.send("\n".join(lines))
             return
 
@@ -577,6 +476,127 @@ class Raid(commands.Cog):
         
         lines.append("\n💡 Use `!raid claim` to claim your rewards!")
         await ctx.send("\n".join(lines))
+
+    async def _execute_charge(self, ctx, uid: str, data: dict):
+        """Execute a confirmed personal battery charge."""
+        resource = data["resource"]
+        amount = data["amount"]
+        capped_amount = data["capped_amount"]
+        units = data["units"]
+        
+        set_lock(uid, "raid_charge", allowed=set(), note="raid charge")
+        try:
+            prof = load_profile(uid) or {}
+            inv = prof.get("inventory", {}) or {}
+            
+            # Deduct resources
+            if resource == "scrap":
+                prof["Scrap"] = int(prof.get("Scrap", 0)) - capped_amount
+            else:
+                inv[resource] = int(inv.get(resource, 0)) - capped_amount
+                if inv[resource] <= 0:
+                    inv.pop(resource, None)
+                prof["inventory"] = inv
+            
+            # Charge battery
+            state = load_state()
+            if not is_active(state):
+                # Refund
+                if resource == "scrap":
+                    prof["Scrap"] = int(prof.get("Scrap", 0)) + capped_amount
+                else:
+                    inv[resource] = int(inv.get(resource, 0)) + capped_amount
+                    prof["inventory"] = inv
+                save_profile(uid, prof)
+                await ctx.send("❌ Raid is no longer active.")
+                return
+            
+            current_pct, cd = get_personal_status(state, uid)
+            if cd > 0:
+                # Refund
+                if resource == "scrap":
+                    prof["Scrap"] = int(prof.get("Scrap", 0)) + capped_amount
+                else:
+                    inv[resource] = int(inv.get(resource, 0)) + capped_amount
+                    prof["inventory"] = inv
+                save_profile(uid, prof)
+                await ctx.send(f"⏳ Cooldown active. You can charge again in {_fmt_timeleft(int(time.time())+cd)}.")
+                return
+            
+            pct_after, _, actual_units = charge_personal_from_materials(state, uid, units)
+            save_state(state)
+            save_profile(uid, prof)
+            
+            # Feedback with overcharge indication
+            cooldown_msg = ""
+            if pct_after > 100:
+                # Calculate overcharge cooldown
+                overcharge_factor = (pct_after - 100) / 100.0
+                cooldown_sec = int(3600 * (1 + 0.5 * overcharge_factor))
+                cooldown_msg = f"\n⚡ **Overcharged!** Attack cooldown will be {cooldown_sec//60} minutes (base 60min + overcharge penalty)."
+            
+            await ctx.send(f"✅ Charged **{actual_units}%** ({capped_amount:,} {resource}). Personal Battery: **{current_pct}%** → **{pct_after}%**{cooldown_msg}")
+        finally:
+            clear_lock(uid)
+
+    async def _execute_support(self, ctx, uid: str, data: dict):
+        """Execute a confirmed mega weapon support."""
+        key = data["key"]
+        amount = data["amount"]
+        capped_amount = data["capped_amount"]
+        units = data["units"]
+        
+        set_lock(uid, "raid_support", allowed=set(), note="raid support")
+        try:
+            prof = load_profile(uid) or {}
+            inv = prof.get("inventory", {}) or {}
+            
+            # Deduct resources
+            if key == "scrap":
+                prof["Scrap"] = int(prof.get("Scrap", 0)) - capped_amount
+            else:
+                inv[key] = int(inv.get(key, 0)) - capped_amount
+                if inv[key] <= 0:
+                    inv.pop(key, None)
+                prof["inventory"] = inv
+            
+            # Charge weapon
+            state = load_state()
+            if not is_active(state):
+                # Refund
+                if key == "scrap":
+                    prof["Scrap"] = int(prof.get("Scrap", 0)) + capped_amount
+                else:
+                    inv[key] = int(inv.get(key, 0)) + capped_amount
+                    prof["inventory"] = inv
+                save_profile(uid, prof)
+                await ctx.send("❌ Raid is no longer active.")
+                return
+            
+            # Get current %
+            mega_container = state.get("active", {}).get("mega", {})
+            weapon_entry = mega_container.get(key, {})
+            current_pct = int(min(100, math.floor(100.0 * weapon_entry.get("progress", 0) / max(1, weapon_entry.get("target", 100)))))
+            
+            pct_after, fired, dmg, rate_msg, actual_units = charge_mega(state, uid, key, units)
+            save_state(state)
+            save_profile(uid, prof)
+            
+            if fired:
+                boss_name = state.get("active", {}).get("boss_name", "the boss")
+                await ctx.send(f"💥 {ctx.author.mention} charged the **{MEGA_WEAPON_KEYS[key]}**! It fires at **{boss_name}** for **{dmg:,} damage**!")
+                # Check raid end
+                state = load_state()
+                ended = maybe_finalize(state)
+                if ended:
+                    save_state(state)
+                    await self._payout_summary(ctx, ended)
+                else:
+                    save_state(state)
+            else:
+                await ctx.send(f"✅ Charged **{actual_units}%** ({capped_amount:,} {key}). {MEGA_WEAPON_KEYS[key]}: **{current_pct}%** → **{pct_after}%**")
+        finally:
+            clear_lock(uid)
 
 async def setup(bot):
     await bot.add_cog(Raid(bot))
