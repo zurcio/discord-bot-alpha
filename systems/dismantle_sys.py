@@ -1,7 +1,8 @@
-import math
+﻿import math
 from core.shared import load_json, save_json
 from core.constants import ITEMS_FILE
 from core.players import save_profile
+from core.items import resolve_item_by_name_or_alias, get_inventory_key_for_item
 
 DISMANTLE_RETURN_RATE = 0.8  # 80% return
 
@@ -20,16 +21,26 @@ def dismantle_item(player, item_name: str, amount: int):
     items_data = load_json(ITEMS_FILE)
     inventory = player.get("inventory", {})
 
-    # Normalize input
-    query = item_name.lower().strip().replace("_", " ")
-
+    # Resolve item using alias resolution - search only in materials
+    category, item_key, item_data = resolve_item_by_name_or_alias(
+        items_data, 
+        item_name, 
+        category_filter=["materials"]
+    )
+    
+    if not item_data:
+        return f" `{item_name}` is not a valid material or cannot be dismantled."
+    
+    resolved_name = item_data.get("name", item_name)
     material_tiers = get_material_tiers()
 
     # Find which tier the item belongs to
     found_family, tier_index = None, None
+    name_normalized = resolved_name.lower().strip()
+    
     for family, tiers in material_tiers.items():
         for i, tier_name in enumerate(tiers):
-            if query == tier_name.lower():
+            if name_normalized == tier_name.lower():
                 found_family = family
                 tier_index = i
                 break
@@ -37,41 +48,50 @@ def dismantle_item(player, item_name: str, amount: int):
             break
 
     if not found_family:
-        return f"❌ `{item_name}` cannot be dismantled."
+        return f" `{resolved_name}` cannot be dismantled."
 
     if tier_index == 0:
-        return f"❌ `{item_name}` is the base material and cannot be dismantled further."
+        return f" `{resolved_name}` is the base material and cannot be dismantled further."
 
-    # Find the actual inventory key that matches the query (spaces/underscores)
-    item_id = None
-    for inv_key in inventory.keys():
-        if inv_key.lower().replace("_", " ") == query:
-            item_id = inv_key
-            break
-
-    if not item_id or inventory.get(item_id, 0) < amount:
-        return f"❌ You don’t have enough `{item_name}` to dismantle."
+    # Find the actual inventory key - try both formats
+    inv_key = get_inventory_key_for_item(resolved_name)
+    if inv_key not in inventory:
+        # Try with the original key from items.json
+        inv_key = item_key
+    
+    if inv_key not in inventory or inventory.get(inv_key, 0) < amount:
+        have_qty = inventory.get(inv_key, 0)
+        return f" You don't have enough `{resolved_name}` to dismantle. You have {have_qty}, need {amount}."
 
     # Determine what item this dismantles into
     lower_tier_name = material_tiers[found_family][tier_index - 1]
-    # Find the inventory key for the lower tier (spaces/underscores)
-    lower_tier_id = None
-    for inv_key in inventory.keys():
-        if inv_key.lower().replace("_", " ") == lower_tier_name.lower():
-            lower_tier_id = inv_key
-            break
-    if not lower_tier_id:
-        lower_tier_id = lower_tier_name.replace(" ", "_")
+    
+    # Resolve the lower tier item to get its proper key
+    _, lower_item_key, lower_item_data = resolve_item_by_name_or_alias(
+        items_data, 
+        lower_tier_name, 
+        category_filter=["materials"]
+    )
+    
+    if not lower_item_data:
+        # Fallback to generated key
+        lower_tier_id = get_inventory_key_for_item(lower_tier_name)
+    else:
+        lower_tier_id = get_inventory_key_for_item(lower_item_data.get("name", lower_tier_name))
 
-    lower_tier_qty = math.floor(10 * DISMANTLE_RETURN_RATE)  # 10 → 8 by default
+    lower_tier_qty = math.floor(10 * DISMANTLE_RETURN_RATE)  # 10  8 by default
 
     # Apply transaction
-    inventory[item_id] -= amount
-    if inventory[item_id] <= 0:
-        del inventory[item_id]
+    inventory[inv_key] -= amount
+    if inventory[inv_key] <= 0:
+        del inventory[inv_key]
 
     inventory[lower_tier_id] = inventory.get(lower_tier_id, 0) + lower_tier_qty * amount
     player["inventory"] = inventory
 
     save_profile(player["id"], player)
-    return f"🔧 Dismantled **{amount}x {item_name}** → **{lower_tier_qty * amount}x {lower_tier_name}**"
+    
+    # Get proper display name for lower tier
+    lower_display_name = lower_item_data.get("name", lower_tier_name) if lower_item_data else lower_tier_name
+    
+    return f" Dismantled **{amount}x {resolved_name}**  **{lower_tier_qty * amount}x {lower_display_name}**"

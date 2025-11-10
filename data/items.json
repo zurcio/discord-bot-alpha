@@ -102,7 +102,7 @@
     },
     "106": {
       "name": "Sharder",
-      "aliases": ["sharder", "shard"],
+      "aliases": ["sharder", "shr"],
       "type": "weapon",
       "attack": 83,
       "attack_mult": 1.0,
@@ -220,7 +220,7 @@
     },
     "204": {
       "name": "Petal Loincloth",
-      "aliases": ["petal", "loincloth", "pl"],
+      "aliases": ["petal", "loincloth", "ploin"],
       "type": "armor",
       "attack": 0,
       "attack_mult": 1.0,
@@ -328,7 +328,7 @@
   "drops": {
     "crawler_tail": {
       "name": "Crawler Tail",
-      "aliases": [],
+      "aliases": ["ctail", "tail"],
       "type": "drop",
       "planet": [1, 2],
       "usable": false,
@@ -338,7 +338,7 @@
     },
     "slug_slime": {
       "name": "Slug Slime",
-      "aliases": [],
+      "aliases": ["slime", "sslime"],
       "type": "drop",
       "planet": [3, 4],
       "usable": false,
@@ -348,7 +348,7 @@
     },
     "orchid_bloom": {
       "name": "Orchid Bloom",
-      "aliases": [],
+      "aliases": ["bloom", "orchid"],
       "type": "drop",
       "planet": [5, 6],
       "usable": false,
@@ -358,7 +358,7 @@
     },
     "crystal_shard": {
       "name": "Crystal Shard",
-      "aliases": [],
+      "aliases": ["shard", "crystal"],
       "type": "drop",
       "planet": [7, 8],
       "usable": false,
@@ -368,7 +368,7 @@
     },
     "lithium_ion": {
       "name": "Lithium Ion",
-      "aliases": [],
+      "aliases": ["lithium", "lion", "li"],
       "type": "drop",
       "planet": [9, 10],
       "usable": false,
@@ -380,7 +380,7 @@
   "materials": {
     "plasteel": {
       "name": "Plasteel",
-      "aliases": [],
+      "aliases": ["plas", "p"],
       "type": "material",
       "usable": false,
       "sellable": true,
@@ -389,7 +389,7 @@
     },
     "plasteel_sheet": {
       "name": "Plasteel Sheet",
-      "aliases": ["sheet"],
+      "aliases": ["psheet", "ps"],
       "type": "material",
       "usable": false,
       "sellable": true,
@@ -398,7 +398,7 @@
     },
     "plasteel_bar": {
       "name": "Plasteel Bar",
-      "aliases": ["bar"],
+      "aliases": ["pbar", "pba"],
       "type": "material",
       "usable": false,
       "sellable": true,
@@ -407,7 +407,7 @@
     },
     "plasteel_beam": {
       "name": "Plasteel Beam",
-      "aliases": ["beam"],
+      "aliases": ["pbeam", "pbe"],
       "type": "material",
       "usable": false,
       "sellable": true,
@@ -416,7 +416,7 @@
     },
     "plasteel_block": {
       "name": "Plasteel Block",
-      "aliases": ["block"],
+      "aliases": ["pblock", "pbl"],
       "type": "material",
       "usable": false,
       "sellable": true,
@@ -470,7 +470,7 @@
     },
     "plasma": {
       "name": "Plasma",
-      "aliases": [],
+      "aliases": ["plasm", "pl"],
       "type": "material",
       "usable": false,
       "sellable": true,
@@ -479,7 +479,7 @@
     },
     "plasma_slag": {
       "name": "Plasma Slag",
-      "aliases": ["slag"],
+      "aliases": ["pslag", "psl"],
       "type": "material",
       "usable": false,
       "sellable": true,
@@ -488,7 +488,7 @@
     },
     "plasma_charge": {
       "name": "Plasma Charge",
-      "aliases": ["charge"],
+      "aliases": ["pcharge", "pch"],
       "type": "material",
       "usable": false,
       "sellable": true,
@@ -497,7 +497,7 @@
     },
     "plasma_core": {
       "name": "Plasma Core",
-      "aliases": ["core"],
+      "aliases": ["pcore", "pco"],
       "type": "material",
       "usable": false,
       "sellable": true,
@@ -506,7 +506,7 @@
     },
     "plasma_module": {
       "name": "Plasma Module",
-      "aliases": ["module"],
+      "aliases": ["pmodule", "pmod", "pm"],
       "type": "material",
       "usable": false,
       "sellable": true,
