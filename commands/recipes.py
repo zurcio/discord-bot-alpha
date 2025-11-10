@@ -5,7 +5,7 @@ from discord.ui import View, Button
 from core.shared import load_json
 from core.constants import CRAFTING_FILE
 from core.guards import require_no_lock
-from core.items import load_items, get_item_by_id  # NEW
+from core.items import load_items, resolve_item_by_name_or_alias
 
 ITEMS_PER_PAGE = 4 # Number of recipes per page
 
@@ -28,10 +28,21 @@ class RecipesView(View):
         self.prev_button.callback = self.prev_page
         self.next_button.callback = self.next_page
 
-    def _resolve_item_name(self, key: str) -> str:
-        """Resolve a material/item ID to its display name; fallback to key if unknown."""
-        item = get_item_by_id(self.items_data, str(key)) if self.items_data else None
-        return item.get("name") if item and isinstance(item, dict) else str(key)
+    def _resolve_item_name_and_aliases(self, key: str) -> tuple:
+        """Resolve a material/item ID to its display name and aliases; fallback to key if unknown."""
+        # Try to find the item by key - could be the internal key like "plasteel" or "plasma"
+        category, item_key, item_data = resolve_item_by_name_or_alias(self.items_data, str(key))
+        
+        if item_data:
+            name = item_data.get("name", str(key))
+            aliases = item_data.get("aliases", [])
+            # Return name with first alias in parentheses if available
+            if aliases:
+                return f"{name} ({aliases[0]})"
+            return name
+        
+        # Fallback: return the key as-is
+        return str(key)
 
     def make_embed(self):
         embed = discord.Embed(
@@ -49,11 +60,11 @@ class RecipesView(View):
             aliases = r.get("aliases", [])
             aliases_str = ", ".join(aliases) if aliases else "None"
             materials = r.get("materials", {})
-            # Display material names instead of raw IDs
+            # Display material names with aliases instead of raw IDs
             if isinstance(materials, dict):
                 mat_pairs = []
                 for k, v in materials.items():
-                    mat_name = self._resolve_item_name(k)
+                    mat_name = self._resolve_item_name_and_aliases(k)
                     mat_pairs.append(f"{mat_name}: {v}")
                 materials_str = ", ".join(mat_pairs) if mat_pairs else "None"
             else:
