@@ -40,7 +40,7 @@ WEIGHTS_BY_BRACKET: Dict[str, Dict[str, float]] = {
     "p2_6": {
         "normal": 30.0, "good": 29.0, "great": 25.0, "excellent": 10.0, "mythic": 4.0,
         "legendary": 1.5, "molecular": 0.3, "atomic": 0.1, "neutronic": 0.05,
-        "protonic": 0.03, "quarkic": 0.01, "sophonic": 0.005, "quantum": 0.005,
+        "protonic": 0.03, "quarkic": 0.014, "sophonic": 0.005, "quantum": 0.001,
     },
     # P7–9: mid/late; strong shift to excellent/mythic/legendary; tiny endgame tail
     "p7_9": {
