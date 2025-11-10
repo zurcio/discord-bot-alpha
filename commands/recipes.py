@@ -57,8 +57,8 @@ class RecipesView(View):
         for r in page_recipes:
             name = r.get("name", "Unknown")
             description = r.get("description", "")
-            aliases = r.get("aliases", [])
-            aliases_str = ", ".join(aliases) if aliases else "None"
+            recipe_aliases = r.get("aliases", [])
+            recipe_aliases_str = ", ".join(recipe_aliases) if recipe_aliases else "None"
             materials = r.get("materials", {})
             # Display material names with aliases instead of raw IDs
             if isinstance(materials, dict):
@@ -71,7 +71,7 @@ class RecipesView(View):
                 materials_str = "None"
             level_req = r.get("level_req", 0)
 
-            value = f"**Description:** {description}\n**Aliases:** {aliases_str}\n**Materials:** {materials_str}"
+            value = f"**Description:** {description}\n**Craft Command:** `!craft {recipe_aliases[0] if recipe_aliases else name.lower()}`\n**Materials:** {materials_str}"
             if len(value) > 1024:
                 value = value[:1021] + "..."
             if level_req > 0:
