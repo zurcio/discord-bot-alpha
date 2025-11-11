@@ -23,7 +23,7 @@ def _load_json(path: str) -> Any:
 def load_state() -> Dict[str, Any]:
     state = _load_json(RAIDS_FILE) or {}
     # Shape
-    state.setdefault("battery", {"progress": 0, "target": 1000, "last_update": int(time.time()), "contributors": {}})
+    state.setdefault("battery", {"progress": 0, "target": 1000, "last_update": int(time.time()), "contributors": {}, "cooldown_until": 0})
     state.setdefault("active", None)  # or dict with boss
     state.setdefault("history", [])
     
@@ -138,6 +138,15 @@ RANK_BANDS = [
     (999, 0.02),  # Ranks 11+: 2% each
 ]
 
+# Credit rewards by rank band
+RANK_BAND_CREDITS = {
+    1: 25,   # Rank 1: 25 credits
+    2: 15,   # Ranks 2-3: 15 credits
+    3: 10,   # Ranks 4-5: 10 credits
+    4: 5,    # Ranks 6-10: 5 credits
+    5: 1,    # Ranks 11+: 1 credit
+}
+
 # Supply crate rewards by rank band
 # Format: {rank_band: {item_id: quantity}}
 SUPPLY_CRATE_REWARDS = {
@@ -206,6 +215,11 @@ def charge_battery(state: Dict[str, Any], user_id: str, event_key: str, amount: 
     if state.get("active") is not None and is_active(state):
         return battery_percent(state)
     bat = state["battery"]
+    
+    # Check if battery is on cooldown (48h after raid ends)
+    cooldown_until = int(bat.get("cooldown_until", 0))
+    if cooldown_until > 0 and _now() < cooldown_until:
+        return battery_percent(state)
     # optional decay
     if BATTERY_DECAY_PER_HOUR > 0:
         last = int(bat.get("last_update", _now()))
@@ -667,16 +681,17 @@ def get_charge_preview_mega(resource_key: str, amount: int, total_scrap: int, to
         "available_capacity": available_capacity
     }
 
-def _payout(active: Dict[str, Any]) -> Tuple[Dict[str, int], Dict[str, Dict[str, int]]]:
+def _payout(active: Dict[str, Any]) -> Tuple[Dict[str, int], Dict[str, Dict[str, int]], Dict[str, int]]:
     """
-    Compute payouts (Scrap and Supply Crates) by uid using rank bands.
-    Returns (scrap_payouts, supply_crate_payouts) where:
+    Compute payouts (Scrap, Supply Crates, and Credits) by uid using rank bands.
+    Returns (scrap_payouts, supply_crate_payouts, credit_payouts) where:
     - scrap_payouts: {uid: scrap_amount}
     - supply_crate_payouts: {uid: {item_id: quantity}}
+    - credit_payouts: {uid: credits_amount}
     """
     contribs = active.get("contributors", {})
     if not contribs:
-        return ({}, {})
+        return ({}, {}, {})
     
     # Sort by damage descending
     ranked = sorted(contribs.items(), key=lambda kv: -int(kv[1].get("damage", 0)))
@@ -714,7 +729,30 @@ def _payout(active: Dict[str, Any]) -> Tuple[Dict[str, int], Dict[str, Dict[str,
         if crate_rewards:
             crate_payouts[str(uid)] = dict(crate_rewards)
     
-    return (scrap_payouts, crate_payouts)
+    # Credit payouts
+    credit_payouts: Dict[str, int] = {}
+    for rank, (uid, ent) in enumerate(ranked, 1):
+        # Determine band number for credits
+        band_num = 5  # default to band 5 (11+)
+        for max_rank, _ in RANK_BANDS:
+            if rank <= max_rank:
+                if max_rank == 1:
+                    band_num = 1
+                elif max_rank == 3:
+                    band_num = 2
+                elif max_rank == 5:
+                    band_num = 3
+                elif max_rank == 10:
+                    band_num = 4
+                else:
+                    band_num = 5
+                break
+        
+        credits = RANK_BAND_CREDITS.get(band_num, 0)
+        if credits > 0:
+            credit_payouts[str(uid)] = credits
+    
+    return (scrap_payouts, crate_payouts, credit_payouts)
 
 def maybe_finalize(state: Dict[str, Any]) -> Dict[str, Any] | None:
     """
@@ -739,13 +777,13 @@ def maybe_finalize(state: Dict[str, Any]) -> Dict[str, Any] | None:
     success = (reason == "defeated")
     # compute payouts
     if success:
-        scrap_payouts, crate_payouts = _payout(act)
+        scrap_payouts, crate_payouts, credit_payouts = _payout(act)
     else:
         # consolation pool: 10%
         pool = int(max(0, int(act.get("reward_pool", BASE_REWARD_POOL_SCRAP)) * CONSOLATION_POOL_FRACTION))
         act2 = dict(act)
         act2["reward_pool"] = pool
-        scrap_payouts, crate_payouts = _payout(act2)
+        scrap_payouts, crate_payouts, credit_payouts = _payout(act2)
 
     summary = {
         "raid_id": act.get("raid_id"),
@@ -756,6 +794,7 @@ def maybe_finalize(state: Dict[str, Any]) -> Dict[str, Any] | None:
         "success": success,
         "payouts": scrap_payouts,  # uid -> scrap
         "crate_payouts": crate_payouts,  # uid -> {item_id: quantity}
+        "credit_payouts": credit_payouts,  # uid -> credits
         "top": sorted(((uid, int(e.get("damage", 0))) for uid, e in act.get("contributors", {}).items()), key=lambda kv: -kv[1])[:10],
         "ended_at": _now(),
         "claimed": [],  # track who has claimed payouts
@@ -764,25 +803,59 @@ def maybe_finalize(state: Dict[str, Any]) -> Dict[str, Any] | None:
     hist = state.setdefault("history", [])
     hist.append(summary)
     state["active"] = None
+    
+    # Set 48-hour cooldown before battery can charge again
+    bat = state["battery"]
+    bat["cooldown_until"] = _now() + (48 * 3600)  # 48 hours
+    
     return summary
 
-def claim_payout(state: Dict[str, Any], uid: str) -> Tuple[int, Dict[str, int], Dict[str, Any]]:
+def get_supply_crate_info(item_id: str) -> Tuple[str, str]:
+    """
+    Get supply crate name and emoji from item_id.
+    Returns (name, emoji).
+    """
+    # Map of supply crate IDs to names and emojis
+    crate_info = {
+        "300": ("Common Supply Crate", "📦"),
+        "301": ("Uncommon Supply Crate", "🎁"),
+        "302": ("Rare Supply Crate", "🗃️"),
+        "303": ("Mythic Supply Crate", "💎"),
+        "304": ("Legendary Supply Crate", "🚀"),
+        "305": ("Solar Supply Crate", "🌌"),
+        "306": ("Galactic Supply Crate", "🌠"),
+        "307": ("Universal Supply Crate", "⭐"),
+    }
+    return crate_info.get(item_id, ("Supply Crate", "📦"))
+
+def get_player_rank(summary: Dict[str, Any], uid: str) -> int:
+    """Get player's rank in the raid. Returns 0 if not found."""
+    payouts = summary.get("payouts", {})
+    ranked = sorted(payouts.items(), key=lambda kv: -kv[1])
+    for rank, (player_uid, _) in enumerate(ranked, 1):
+        if str(player_uid) == str(uid):
+            return rank
+    return 0
+
+def claim_payout(state: Dict[str, Any], uid: str) -> Tuple[int, Dict[str, int], int, Dict[str, Any], int]:
     """
     Allow a player to claim their payout from the most recent summary. 
-    Returns (scrap_amount, supply_crates_dict, summary) where supply_crates_dict is {item_id: quantity}.
+    Returns (scrap_amount, supply_crates_dict, credits_amount, summary, player_rank) where supply_crates_dict is {item_id: quantity}.
     """
     hist = state.get("history", [])
     if not hist:
-        return (0, {}, {})
+        return (0, {}, 0, {}, 0)
     latest = hist[-1]
     if state.get("active") is not None:  # cannot claim while active raid
-        return (0, {}, latest)
+        return (0, {}, 0, latest, 0)
     claimed = latest.setdefault("claimed", [])
     if str(uid) in claimed:
-        return (0, {}, latest)
+        return (0, {}, 0, latest, 0)
     scrap_amount = int(latest.get("payouts", {}).get(str(uid), 0))
     crate_rewards = latest.get("crate_payouts", {}).get(str(uid), {})
-    if scrap_amount > 0 or crate_rewards:
+    credits_amount = int(latest.get("credit_payouts", {}).get(str(uid), 0))
+    player_rank = get_player_rank(latest, uid)
+    if scrap_amount > 0 or crate_rewards or credits_amount > 0:
         claimed.append(str(uid))
-    return (scrap_amount, crate_rewards, latest)
+    return (scrap_amount, crate_rewards, credits_amount, latest, player_rank)
 

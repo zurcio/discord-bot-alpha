@@ -9,7 +9,8 @@ from systems.raids import (
     charge_mega, convert_to_personal_units, convert_to_mega_units,
     calculate_scrap_total, calculate_material_total, parse_amount,
     get_charge_preview_personal, get_charge_preview_mega,
-    MEGA_WEAPON_KEYS, claim_payout, PERSONAL_MAX_CHARGE, MEGA_HOURLY_CONTRIBUTION_LIMIT
+    MEGA_WEAPON_KEYS, claim_payout, PERSONAL_MAX_CHARGE, MEGA_HOURLY_CONTRIBUTION_LIMIT,
+    get_supply_crate_info, get_player_rank
 )
 
 def _fmt_timeleft(ts: int) -> str:
@@ -83,6 +84,52 @@ class Raid(commands.Cog):
                 save_state(state)
             st = get_status(state)
             if not st.get("active", False):
+                # Check if there's a recent completed raid to show
+                hist = state.get("history", [])
+                bat = state.get("battery", {})
+                cooldown_until = int(bat.get("cooldown_until", 0))
+                now = int(time.time())
+                
+                if hist and cooldown_until > 0 and now < cooldown_until:
+                    # Show raid results during cooldown
+                    latest = hist[-1]
+                    success = latest.get("success", False)
+                    title = "🏁 Raid Completed — Victory!" if success else "⏳ Raid Ended"
+                    time_left = cooldown_until - now
+                    hours = time_left // 3600
+                    minutes = (time_left % 3600) // 60
+                    
+                    embed = discord.Embed(title=title, color=0x2ecc71 if success else 0xe67e22)
+                    embed.add_field(name="Boss", value=latest.get("boss_name", "Unknown"), inline=True)
+                    embed.add_field(name="Duration", value=f"{latest.get('duration', 0)//3600}h", inline=True)
+                    embed.add_field(name="\u200b", value="\u200b", inline=True)
+                    
+                    # Top 3 contributors
+                    top = latest.get("top", [])[:3]
+                    if top:
+                        top_text = []
+                        for i, (pid, dmg) in enumerate(top, 1):
+                            claimed_status = "✅" if str(pid) in latest.get("claimed", []) else "⏳"
+                            top_text.append(f"{i}. <@{pid}> — {dmg:,} dmg {claimed_status}")
+                        embed.add_field(name="🏆 Top 3 Contributors", value="\n".join(top_text), inline=False)
+                    
+                    # Check if user participated
+                    uid = str(ctx.author.id)
+                    if uid in latest.get("payouts", {}):
+                        rank = get_player_rank(latest, uid)
+                        scrap = latest.get("payouts", {}).get(uid, 0)
+                        credits = latest.get("credit_payouts", {}).get(uid, 0)
+                        crates = sum(latest.get("crate_payouts", {}).get(uid, {}).values())
+                        claimed = uid in latest.get("claimed", [])
+                        status_emoji = "✅ Claimed" if claimed else "⏳ Pending"
+                        embed.add_field(name=f"📊 Your Rank: #{rank}", value=f"Rewards: {scrap:,} Scrap, {credits} Credits, {crates} Crates ({status_emoji})", inline=False)
+                    
+                    embed.add_field(name="⏰ Next Raid Battery", value=f"Opens in {hours}h {minutes}m", inline=False)
+                    embed.set_footer(text="Use !raid claim to collect your rewards!")
+                    await ctx.send(embed=embed)
+                    return
+                
+                # Normal battery charging display
                 p = st["battery_percent"]
                 embed = discord.Embed(title="⚡ Raid Battery Charging", color=0x3498db)
                 embed.add_field(name="Progress", value=f"{p}%", inline=False)
@@ -427,75 +474,97 @@ class Raid(commands.Cog):
         # claim rewards
         if sub in ("claim", "cl"):
             state = load_state()
-            scrap_amt, crate_rewards, summary = claim_payout(state, uid)
+            scrap_amt, crate_rewards, credits_amt, summary, player_rank = claim_payout(state, uid)
             save_state(state)
             if not summary:
-                await ctx.send("No completed raid to claim from.")
+                await ctx.send("❌ No completed raid to claim from.")
                 return
-            if scrap_amt <= 0 and not crate_rewards:
+            if scrap_amt <= 0 and not crate_rewards and credits_amt <= 0:
                 if str(uid) in summary.get("claimed", []):
-                    await ctx.send("Rewards already claimed.")
+                    await ctx.send("✅ Rewards already claimed for this raid.")
                 else:
-                    await ctx.send("You earned no rewards this raid.")
+                    await ctx.send("❌ You earned no rewards this raid.")
                 return
-            # apply payout
+            
+            # Build reward display embed
+            embed = discord.Embed(
+                title="🎉 Raid Rewards Claimed",
+                description=f"**{summary.get('boss_name', 'Raid')}** — Rank #{player_rank}",
+                color=0x2ecc71
+            )
+            
+            # Show top 3 rewards
+            top = summary.get("top", [])[:3]
+            if top:
+                top_text = []
+                for i, (pid, dmg) in enumerate(top, 1):
+                    top_scrap = summary.get("payouts", {}).get(str(pid), 0)
+                    top_crates = summary.get("crate_payouts", {}).get(str(pid), {})
+                    top_credits = summary.get("credit_payouts", {}).get(str(pid), 0)
+                    total_crates = sum(top_crates.values()) if top_crates else 0
+                    top_text.append(f"**#{i}** <@{pid}>: {top_scrap:,} Scrap, {top_credits} Credits, {total_crates} Crates")
+                embed.add_field(name="🏆 Top 3 Contributors", value="\n".join(top_text), inline=False)
+            
+            # Apply rewards to profile
             prof = load_profile(uid) or {}
-            reward_lines = []
             
             # Apply scrap
             if scrap_amt > 0:
                 prof["Scrap"] = int(prof.get("Scrap", 0)) + scrap_amt
-                reward_lines.append(f"💰 {scrap_amt:,} Scrap")
+                embed.add_field(name="💰 Scrap", value=f"+{scrap_amt:,}", inline=True)
             
-            # Apply supply crates
+            # Apply credits
+            if credits_amt > 0:
+                prof["Credits"] = int(prof.get("Credits", 0)) + credits_amt
+                embed.add_field(name="💎 Credits", value=f"+{credits_amt}", inline=True)
+            
+            # Apply supply crates with detailed display
             if crate_rewards:
                 inv = prof.get("inventory", {})
-                for item_id, qty in crate_rewards.items():
+                
+                # Sort crates by rarity (reverse order for display)
+                crate_order = ["305", "304", "303", "302", "301", "300"]  # Solar to Common
+                sorted_crates = [(cid, qty) for cid in crate_order if cid in crate_rewards for qty in [crate_rewards[cid]]]
+                
+                crate_lines = []
+                for item_id, qty in sorted_crates:
                     inv[item_id] = int(inv.get(item_id, 0)) + qty
-                    # Get item name for display
-                    from core.items import get_item
-                    item = get_item(item_id)
-                    item_name = item.get("name", "Supply Crate") if item else "Supply Crate"
-                    emoji = item.get("emoji", "📦") if item else "📦"
-                    reward_lines.append(f"{emoji} {qty}x {item_name}")
+                    name, emoji = get_supply_crate_info(item_id)
+                    crate_lines.append(f"{emoji} **{qty}x** {name}")
+                
                 prof["inventory"] = inv
+                embed.add_field(name="📦 Supply Crates", value="\n".join(crate_lines), inline=False)
             
             save_profile(uid, prof)
             
-            msg = f"✅ **Raid Rewards Claimed** (Raid {summary.get('raid_id')}):\n" + "\n".join(reward_lines)
-            await ctx.send(msg)
+            embed.set_footer(text=f"Raid ID: {summary.get('raid_id')}")
+            await ctx.send(embed=embed)
             return
 
         await ctx.send("Usage: !raid status | !raid charge <res> <amt> | !raid attack | !raid support <res> <amt> | !raid leaderboard | !raid claim")
 
     async def _payout_summary(self, ctx, summary: dict):
         title = "🏁 Raid Finished — Victory!" if summary.get("success") else "⏳ Raid Ended"
-        lines = [
-            f"{title}",
-            f"Boss: {summary.get('boss_name')} • Duration: {int(summary.get('duration',0))//3600}h",
-        ]
+        
+        embed = discord.Embed(
+            title=title,
+            description=f"**{summary.get('boss_name')}** • Duration: {int(summary.get('duration',0))//3600}h",
+            color=0x2ecc71 if summary.get("success") else 0xe67e22
+        )
+        
         payouts = summary.get("payouts", {})
         crate_payouts = summary.get("crate_payouts", {})
         
         if payouts:
-            lines.append("\n💰 **Scrap Rewards:**")
             display = sorted(payouts.items(), key=lambda kv: -kv[1])[:10]
-            for uid, amt in display:
-                lines.append(f"• <@{uid}> — {amt:,} Scrap")
+            scrap_text = []
+            for rank, (uid, amt) in enumerate(display, 1):
+                total_crates = sum(crate_payouts.get(uid, {}).values())
+                scrap_text.append(f"**#{rank}** <@{uid}>: {amt:,} Scrap, {total_crates} Crates")
+            embed.add_field(name="🏆 Top 10 Contributors", value="\n".join(scrap_text), inline=False)
         
-        if crate_payouts:
-            lines.append("\n📦 **Supply Crate Rewards:**")
-            # Show summary for first few players
-            display = sorted(payouts.items(), key=lambda kv: -kv[1])[:5] if payouts else list(crate_payouts.items())[:5]
-            for uid, _ in display:
-                if uid in crate_payouts:
-                    crates = crate_payouts[uid]
-                    # Count total crates
-                    total = sum(crates.values())
-                    lines.append(f"• <@{uid}> — {total} Supply Crates")
-        
-        lines.append("\n💡 Use `!raid claim` to claim your rewards!")
-        await ctx.send("\n".join(lines))
+        embed.set_footer(text="Use !raid claim to collect your rewards!")
+        await ctx.send(embed=embed)
 
     async def _execute_charge(self, ctx, uid: str, data: dict):
         """Execute a confirmed personal battery charge."""
