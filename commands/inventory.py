@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from core.decorators import requires_profile
-from core.constants import ITEMS_FILE
+from core.constants import ITEMS_FILE, SUPPLY_CRATE_TIERS
 from core.shared import load_json
 from core.guards import require_no_lock
 from core.players import load_profile
@@ -136,7 +136,19 @@ class Inventory(commands.Cog):
 
         # Column 2: Drops, then Consumables, then Supply Crates
         consumable_lines = _collect_by_type(items, inv, {"consumable", "potion", "food"})
-        supply_crate_lines = _collect_by_type(items, inv, {"supply_crate", "crate"})
+        
+        # Supply Crates - sorted by rarity tier
+        supply_crate_raw = _collect_by_type(items, inv, {"supply_crate", "crate"})
+        
+        def get_crate_tier_index(crate_line: str) -> int:
+            """Extract tier from supply crate name and return its index in SUPPLY_CRATE_TIERS."""
+            crate_name = crate_line.split(" x")[0].lower()
+            for idx, tier in enumerate(SUPPLY_CRATE_TIERS):
+                if tier in crate_name:
+                    return idx
+            return 999  # Unknown tier goes to end
+        
+        supply_crate_lines = sorted(supply_crate_raw, key=get_crate_tier_index)
 
         col2_parts = []
         if drop_lines:
@@ -147,7 +159,7 @@ class Inventory(commands.Cog):
             col2_parts.extend(sorted(consumable_lines, key=lambda s: s.lower()))
         if supply_crate_lines:
             col2_parts.append("**— Supply Crates —**")
-            col2_parts.extend(sorted(supply_crate_lines, key=lambda s: s.lower()))
+            col2_parts.extend(supply_crate_lines)
         col2_text = "\n".join(col2_parts) if col2_parts else "-"
 
         # Column 3: Gear & Warpdrives & Keycards

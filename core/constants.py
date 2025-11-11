@@ -39,7 +39,7 @@ PLAYER_BASE_DAMAGE = 10
 ENEMY_BASE_DAMAGE = 8
 
 # === SUPPLY CRATE CONSTANTS ===
-SUPPLY_CRATE_TIERS = ["common", "uncommon", "rare", "mythic", "legendary"]
+SUPPLY_CRATE_TIERS = ["common", "uncommon", "rare", "mythic", "legendary", "solar", "galactic", "universal"]
 SUPPLY_CRATE_COOLDOWN = 10800  # 3 hours in seconds
 
 

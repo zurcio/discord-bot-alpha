@@ -39,6 +39,23 @@
       "per_user_limit": 1,
       "expires_at": null,
       "disabled": false
+    },
+    "raidtest": {
+      "description": "Rewards for raid event testing.",
+      "rewards": {
+        "Scrap": 15000000,
+        "Credits": 5,
+        "305": 1,
+        "304": 3,
+        "303": 5,
+        "302": 10,
+        "301": 20,
+        "300": 30
+      },
+      "uses_left": 3,
+      "per_user_limit": 1,
+      "expires_at": "2025-12-31T23:59:59Z",
+      "disabled": false
     }
   }
 }
