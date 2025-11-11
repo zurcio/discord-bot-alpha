@@ -32,13 +32,15 @@ def _apply_rewards(player: dict, rewards: dict) -> list[str]:
     inv = player.get("inventory", {}) or {}
     rewards = rewards or {}
 
-    # NEW: load item catalog to resolve names
+    # Load item catalog to resolve names
     items_catalog = load_json(ITEMS_FILE) or {}
 
+    # Reserved keys that are NOT items
+    reserved_keys = {"Scrap", "Credits", "xp", "items", "starter_ship"}
+    
     scrap = int(rewards.get("Scrap", 0) or 0)
     credits = int(rewards.get("Credits", 0) or 0)
     xp = int(rewards.get("xp", 0) or 0)
-    items = rewards.get("items", {}) or {}
     give_starter_ship = bool(rewards.get("starter_ship", False))
 
     if scrap:
@@ -54,17 +56,35 @@ def _apply_rewards(player: dict, rewards: dict) -> list[str]:
             msg += f" (Level {player.get('level', 1)})"
         lines.append(msg)
 
-    # Items: keys are item_id strings; values are quantities
-    for item_id, qty in items.items():
-        q = int(qty or 0)
-        if q <= 0:
+    # Collect all items from both "items" field and direct item IDs in rewards
+    all_items = {}
+    
+    # Legacy support: items nested in "items" field
+    legacy_items = rewards.get("items", {}) or {}
+    for item_id, qty in legacy_items.items():
+        all_items[str(item_id)] = int(qty or 0)
+    
+    # New support: item IDs directly in rewards (anything not in reserved_keys)
+    for key, value in rewards.items():
+        if key not in reserved_keys:
+            # This is an item ID
+            all_items[str(key)] = int(value or 0)
+    
+    # Apply all items
+    for item_id, qty in all_items.items():
+        if qty <= 0:
             continue
         key = str(item_id)
-        inv[key] = int(inv.get(key, 0)) + q
+        inv[key] = int(inv.get(key, 0)) + qty
         # Resolve display name
         item_def = get_item_by_id(items_catalog, key)
-        display = item_def.get("name") if item_def else key
-        lines.append(f"+{q} x {display}")
+        if item_def:
+            display_name = item_def.get("name", key)
+            emoji = item_def.get("emoji", "")
+            display = f"{emoji} {display_name}".strip() if emoji else display_name
+        else:
+            display = f"Item #{key}"
+        lines.append(f"+{qty} x {display}")
 
     player["inventory"] = inv
 
