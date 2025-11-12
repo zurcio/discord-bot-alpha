@@ -89,14 +89,20 @@ class Explore(commands.Cog):
                     counts[str(d)] += 1
 
                 lootbox_table = (items_data or {}).get("lootboxes", {}) or {}
+                supply_crate_table = (items_data or {}).get("supply_crates", {}) or {}
+                drops_table = (items_data or {}).get("drops", {}) or {}
                 pretty = []
                 for iid, base_count in counts.items():
                     is_lootbox = iid in lootbox_table
+                    is_supply_crate = iid in supply_crate_table
+                    is_enemy_drop = iid in drops_table
                     qty = base_count
-                    if not is_lootbox:
+                    # Don't multiply lootboxes, supply crates, or enemy drops by planet mult
+                    # Enemy drops only get ship double_drops bonus
+                    if not is_lootbox and not is_supply_crate and not is_enemy_drop:
                         qty = int(max(1, round(qty * materials_mult)))
-                        if double_items:
-                            qty *= 2
+                    if double_items and not is_lootbox and not is_supply_crate:
+                        qty *= 2
 
                     inv[iid] = int(inv.get(iid, 0)) + qty
 
