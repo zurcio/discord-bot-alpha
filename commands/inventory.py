@@ -5,6 +5,7 @@ from core.constants import ITEMS_FILE, SUPPLY_CRATE_TIERS
 from core.shared import load_json
 from core.guards import require_no_lock
 from core.players import load_profile
+from core.emoji_helper import get_item_emoji
 
 FAMILIES = [
     ("Plasteel", [
@@ -32,7 +33,7 @@ def _id_by_name(items_map: dict, display_name: str) -> str | None:
             return item_id
     return None
 
-def _collect_by_type(items_root: dict, inventory: dict, type_names: set[str]) -> list[str]:
+def _collect_by_type(items_root: dict, inventory: dict, type_names: set[str], bot=None) -> list[str]:
     """Collect lines for items whose 'type' is in type_names."""
     lines = []
     for category, items in (items_root or {}).items():
@@ -41,7 +42,10 @@ def _collect_by_type(items_root: dict, inventory: dict, type_names: set[str]) ->
             if t in type_names:
                 qty = int(inventory.get(item_id, 0))
                 if qty > 0:
-                    lines.append(f"{data.get('name', item_id)} x{qty}")
+                    emoji = get_item_emoji(data, bot)
+                    name = data.get('name', item_id)
+                    display = f"{emoji} {name}" if emoji else name
+                    lines.append(f"{display} x{qty}")
     return lines
 
 class Inventory(commands.Cog):
@@ -86,7 +90,10 @@ class Inventory(commands.Cog):
                 if item_id:
                     qty = int(inv.get(item_id, 0))
                     if qty > 0:
-                        fam_lines.append(f"{disp_name} x{qty}")
+                        item_data = mats.get(item_id, {})
+                        emoji = get_item_emoji(item_data, self.bot)
+                        display = f"{emoji} {disp_name}" if emoji else disp_name
+                        fam_lines.append(f"{display} x{qty}")
                         used_mat_ids.add(item_id)
             if fam_lines:
                 col1_lines.append(f"**— {fam_name} —**")
@@ -99,7 +106,10 @@ class Inventory(commands.Cog):
                 continue
             qty = int(inv.get(item_id, 0))
             if qty > 0:
-                other_mats.append(f"{data.get('name', item_id)} x{qty}")
+                emoji = get_item_emoji(data, self.bot)
+                name = data.get('name', item_id)
+                display = f"{emoji} {name}" if emoji else name
+                other_mats.append(f"{display} x{qty}")
         if other_mats:
             col1_lines.append("— Other Materials —")
             col1_lines.extend(sorted(other_mats, key=lambda s: s.lower()))
@@ -115,7 +125,10 @@ class Inventory(commands.Cog):
             if item_id:
                 qty = int(inv.get(item_id, 0))
                 if qty > 0:
-                    drop_lines.append(f"{disp_name} x{qty}")
+                    item_data = drops.get(item_id, {})
+                    emoji = get_item_emoji(item_data, self.bot)
+                    display = f"{emoji} {disp_name}" if emoji else disp_name
+                    drop_lines.append(f"{display} x{qty}")
                     used_drop_ids.add(item_id)
 
         # Then, include any remaining drops (not listed in DROPS_CAT), alphabetically
@@ -125,20 +138,23 @@ class Inventory(commands.Cog):
                 continue
             qty = int(inv.get(item_id, 0))
             if qty > 0:
-                other_drops.append(f"{data.get('name', item_id)} x{qty}")
+                emoji = get_item_emoji(data, self.bot)
+                name = data.get('name', item_id)
+                display = f"{emoji} {name}" if emoji else name
+                other_drops.append(f"{display} x{qty}")
 
         if not drop_lines and not other_drops:
             # Fallback: items tagged as drop by type when not under the drops category
-            typed = _collect_by_type(items, inv, {"drop", "enemy_drop"})
+            typed = _collect_by_type(items, inv, {"drop", "enemy_drop"}, self.bot)
             drop_lines.extend(sorted(typed, key=lambda s: s.lower()))
         else:
             drop_lines.extend(sorted(other_drops, key=lambda s: s.lower()))
 
         # Column 2: Drops, then Consumables, then Supply Crates
-        consumable_lines = _collect_by_type(items, inv, {"consumable", "potion", "food"})
+        consumable_lines = _collect_by_type(items, inv, {"consumable", "potion", "food"}, self.bot)
         
         # Supply Crates - sorted by rarity tier
-        supply_crate_raw = _collect_by_type(items, inv, {"supply_crate", "crate"})
+        supply_crate_raw = _collect_by_type(items, inv, {"supply_crate", "crate"}, self.bot)
         
         def get_crate_tier_index(crate_line: str) -> int:
             """Extract tier from supply crate name and return its index in SUPPLY_CRATE_TIERS."""
@@ -163,9 +179,9 @@ class Inventory(commands.Cog):
         col2_text = "\n".join(col2_parts) if col2_parts else "-"
 
         # Column 3: Gear & Warpdrives & Keycards
-        gear_lines = _collect_by_type(items, inv, {"weapon", "armor", "gear"})
-        warp_lines = _collect_by_type(items, inv, {"warpdrive", "key_item"})
-        key_lines = _collect_by_type(items, inv, {"keycard", "key"})
+        gear_lines = _collect_by_type(items, inv, {"weapon", "armor", "gear"}, self.bot)
+        warp_lines = _collect_by_type(items, inv, {"warpdrive", "key_item"}, self.bot)
+        key_lines = _collect_by_type(items, inv, {"keycard", "key"}, self.bot)
 
         col3_parts = []
         if gear_lines:
