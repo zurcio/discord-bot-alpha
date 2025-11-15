@@ -8,11 +8,10 @@ from core.utils import get_max_health, get_max_oxygen
 from core.constants import PLANETS_FILE
 from core.cooldowns import check_and_set_cooldown
 from systems.combat import choose_random_enemy, simulate_combat 
-from core.items import load_items, get_item_by_id
+from core.items import load_items, get_item_by_id, get_item_display_name
 from core.guards import require_no_lock
 from systems.ship_sys import derive_ship_effects
-from core.rewards import apply_rewards     
-from core.items import load_items, get_item_by_id  #
+from core.rewards import apply_rewards
 from collections import defaultdict  
 from core.quest_progress import update_quest_progress_for_materials, update_quest_progress_for_enemy_kill
 from systems.crew_sys import maybe_spawn_crew
@@ -119,8 +118,8 @@ class Scan(commands.Cog):
                                 pass
 
                     item = get_item_by_id(items_data, iid)
-                    name = item["name"] if item and "name" in item else str(iid)
-                    pretty.append(f"{name} x{qty}")
+                    display = get_item_display_name(item, iid, self.bot)
+                    pretty.append(f"{display} x{qty}")
 
                 player["inventory"] = inv
                 drops_text = ", ".join(pretty) if pretty else "None"

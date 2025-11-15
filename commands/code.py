@@ -8,7 +8,7 @@ from core.guards import require_no_lock
 from core.utils import add_xp
 from systems.ship_sys import grant_starter_ship, ensure_ship
 from core.constants import ITEMS_FILE  
-from core.items import get_item_by_id  
+from core.items import get_item_by_id, get_item_display_name  
 
 CODES_FILE = "data/codes.json"
 
@@ -26,7 +26,7 @@ def _is_expired(expires_at) -> bool:
     except Exception:
         return False
 
-def _apply_rewards(player: dict, rewards: dict) -> list[str]:
+def _apply_rewards(player: dict, rewards: dict, bot=None) -> list[str]:
     """Apply rewards to player. Returns a list of human-readable lines."""
     lines = []
     inv = player.get("inventory", {}) or {}
@@ -78,12 +78,7 @@ def _apply_rewards(player: dict, rewards: dict) -> list[str]:
         inv[key] = int(inv.get(key, 0)) + qty
         # Resolve display name
         item_def = get_item_by_id(items_catalog, key)
-        if item_def:
-            display_name = item_def.get("name", key)
-            emoji = item_def.get("emoji", "")
-            display = f"{emoji} {display_name}".strip() if emoji else display_name
-        else:
-            display = f"Item #{key}"
+        display = get_item_display_name(item_def, key, bot)
         lines.append(f"+{qty} x {display}")
 
     player["inventory"] = inv
@@ -144,7 +139,7 @@ class RedeemCode(commands.Cog):
 
         # Apply rewards
         rewards = cfg.get("rewards", {}) or {}
-        lines = _apply_rewards(player, rewards)
+        lines = _apply_rewards(player, rewards, self.bot)
 
         # Update per-user and global counters
         redeemed[key] = user_uses + 1

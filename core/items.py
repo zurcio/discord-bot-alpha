@@ -1,4 +1,5 @@
 from core.shared import load_json
+from core.emoji_helper import get_item_emoji, format_item_display
 
 ITEMS_FILE = "data/items.json"
 
@@ -47,6 +48,25 @@ def find_item(items, item_id):
         if item_id in category:
             return category[item_id]
     return None
+
+
+def get_item_display_name(item_data, item_id=None, bot=None):
+    """
+    Get a displayable name for an item with its emoji (if available).
+    
+    Args:
+        item_data: Item dictionary
+        item_id: Item ID (used as fallback if no name found)
+        bot: Discord bot instance (for custom emoji lookup)
+    
+    Returns:
+        Formatted string like "emoji Name" or "Name" or "Item #ID"
+    """
+    if not item_data:
+        return f"Item #{item_id}" if item_id else "Unknown Item"
+    
+    name = item_data.get("name", item_id or "Unknown")
+    return format_item_display(name, item_data, bot)
 
 
 def resolve_item_by_name_or_alias(items_data, query, category_filter=None):

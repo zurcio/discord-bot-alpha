@@ -15,7 +15,7 @@ from core.rewards import apply_rewards
 from systems.crew_sys import maybe_spawn_crew
 from core.quest_progress import update_quest_progress_for_enemy_kill
 from collections import defaultdict
-from core.items import load_items, get_item_by_id
+from core.items import load_items, get_item_by_id, get_item_display_name
 # NEW
 from core.skills_hooks import award_skill
 from systems.raids import load_state, save_state, charge_battery
@@ -107,8 +107,8 @@ class Explore(commands.Cog):
                     inv[iid] = int(inv.get(iid, 0)) + qty
 
                     meta = get_item_by_id(items_data, iid)
-                    name = meta["name"] if meta and "name" in meta else str(iid)
-                    pretty.append(f"{name} x{qty}")
+                    display = get_item_display_name(meta, iid, self.bot)
+                    pretty.append(f"{display} x{qty}")
 
                 player["inventory"] = inv
                 drops_text = ", ".join(pretty) if pretty else "None"
