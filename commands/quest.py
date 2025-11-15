@@ -12,6 +12,12 @@ from core.items import get_item_by_id
 from core.quest_progress import update_quest_progress_for_materials 
 from core.rewards import apply_rewards 
 from core.cooldowns import check_cooldown_only, command_cooldowns
+from core.emoji_helper import get_item_emoji
+import random
+import time
+import copy
+import discord
+import asyncio
 
 QUEST_COOLDOWN = 10800          # 3 hours in seconds
 SHORT_QUEST_COOLDOWN = 2700     # 45 minutes
@@ -209,7 +215,16 @@ class Quest(commands.Cog):
                 lootbox_id = ["300", "301", "302", "303", "304"][min((p - 1) // 2, 4)]
                 lootbox_qty = 1
 
-            desc = f"Collect {goal}x {mat_name}."
+            # Get emoji for material
+            mat_item = None
+            for cat, items_dict in items_data.items():
+                if isinstance(items_dict, dict) and mat_base in items_dict:
+                    mat_item = items_dict[mat_base]
+                    break
+            mat_emoji = get_item_emoji(mat_item, self.bot) if mat_item else ""
+            mat_display = f"{mat_emoji} {mat_name}" if mat_emoji else mat_name
+
+            desc = f"Collect {goal}x {mat_display}."
             return {
                 "description": desc,
                 "type": "work",
@@ -302,7 +317,17 @@ class Quest(commands.Cog):
 
             scrap = 200 * p + random.randint(25, 75) * p
             xp = 80 * p + random.randint(10, 30) * p
-            desc = f"Craft {goal}x {display_name}."
+            
+            # Get emoji for craft target
+            craft_item = None
+            for cat, items_dict in items_data.items():
+                if isinstance(items_dict, dict) and recipe_key in items_dict:
+                    craft_item = items_dict[recipe_key]
+                    break
+            craft_emoji = get_item_emoji(craft_item, self.bot) if craft_item else ""
+            craft_display = f"{craft_emoji} {display_name}" if craft_emoji else display_name
+            
+            desc = f"Craft {goal}x {craft_display}."
             return {
                 "description": desc,
                 "type": "craft_material",

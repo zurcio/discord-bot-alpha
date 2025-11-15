@@ -10,6 +10,7 @@ from core.players import load_profile, save_profile
 from systems.supply_crates import generate_supply_crate_rewards, has_valid_supply_crate_config
 # NEW: Boxer XP award without needing ctx.player
 from core.skills_hooks import award_player_skill
+from core.emoji_helper import get_item_emoji
 
 TIER_MAP = {
     "c": "common", "common": "common",
@@ -211,7 +212,7 @@ class OpenCommand(commands.Cog):
             # Build result embed
             lines = []
             if credits_gained > 0:
-                lines.append(f"Credits x{credits_gained}")
+                lines.append(f"💰 Credits x{credits_gained}")
             sorted_items = sorted(aggregated.items(), key=lambda kv: (-kv[1], kv[0]))
             max_lines = 25
             for idx, (item_id, qty) in enumerate(sorted_items):
@@ -219,8 +220,9 @@ class OpenCommand(commands.Cog):
                     break
                 meta = get_item_by_id(items_data, item_id)
                 name = meta.get("name", item_id) if meta else item_id
-                emoji = (meta.get("emoji") or "") if meta else ""
-                lines.append(f"{emoji} **{name}** x{qty}")
+                emoji = get_item_emoji(meta, self.bot) if meta else ""
+                display = f"{emoji} {name}" if emoji else name
+                lines.append(f"**{display}** x{qty}")
             if len(sorted_items) > max_lines:
                 lines.append(f"...and {len(sorted_items) - max_lines} more items.")
 

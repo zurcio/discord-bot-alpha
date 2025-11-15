@@ -1,7 +1,7 @@
 import random
 from core.shared import load_json
 from core.players import save_profile
-from core.constants import PLANETS_FILE
+from core.constants import PLANETS_FILE, ITEMS_FILE
 from core.decorators import requires_profile
 from core.cooldowns import check_and_set_cooldown
 from discord.ext import commands
@@ -13,6 +13,8 @@ from systems.crew_sys import maybe_spawn_crew
 # NEW
 from core.skills_hooks import worker_effects, award_skill
 from systems.raids import load_state, save_state, charge_battery
+from core.items import get_item_by_id, load_items
+from core.emoji_helper import get_item_emoji
 
 WORK_COOLDOWN = 180  # 3 minutes in seconds
 
@@ -118,6 +120,9 @@ async def handle_work(ctx, command_name: str):
     if not await check_and_set_cooldown(ctx, "work", command_cooldowns["work"]):
         return
 
+    # Load items data for emoji display
+    items_data = load_items() or {}
+
     # Load planet data robustly (supports both flat and { "planets": { ... } } shapes)
     planets_root = load_json(PLANETS_FILE) or {}
     planets_data = planets_root.get("planets") if isinstance(planets_root.get("planets"), dict) else planets_root
@@ -196,7 +201,15 @@ async def handle_work(ctx, command_name: str):
                 inv[cm] = int(inv.get(cm, 0)) + 1
                 player["inventory"] = inv
                 _update_quest_for_gain(player, cm, 1)
-                bonus_line = f"\n🔁 Worker bonus: You also found 1x {cm}!"
+                # Get cross-material emoji
+                cm_item = None
+                for cat, items in items_data.items():
+                    if isinstance(items, dict) and cm in items:
+                        cm_item = items[cm]
+                        break
+                cm_emoji = get_item_emoji(cm_item, ctx.bot) if cm_item else ""
+                cm_display = f"{cm_emoji} {cm}" if cm_emoji else cm
+                bonus_line = f"\n🔁 Worker bonus: You also found 1x {cm_display}!"
 
     # Base rewards (do NOT pre-apply planet/ship/bank multipliers here)
     base_scrap = random.randint(5, 10)
@@ -214,6 +227,16 @@ async def handle_work(ctx, command_name: str):
     w_xp = _worker_xp_for(command_name, int(planet_key), overcharged)
     lvl, ups = award_skill(ctx, "worker", w_xp)
 
+    # Get material display name with emoji
+    mat_item = None
+    for cat, items in items_data.items():
+        if isinstance(items, dict) and material in items:
+            mat_item = items[material]
+            break
+    
+    emoji = get_item_emoji(mat_item, ctx.bot) if mat_item else ""
+    mat_display = f"{emoji} {material}" if emoji else material
+
    # Build XP note separately to avoid f-string backslash-in-expression
     xp_note = ""
     if w_xp > 0:
@@ -222,7 +245,7 @@ async def handle_work(ctx, command_name: str):
 
     await ctx.send(
          f"{ctx.author.mention} performed **{command_name}** and gathered "
-         f"{qty}x {material}! 💰 {res['applied']['scrap']} Scrap | ⭐ {res['applied']['xp']} XP. "
+         f"{qty}x {mat_display}! 💰 {res['applied']['scrap']} Scrap | ⭐ {res['applied']['xp']} XP. "
         f"Consumed 10 Oxygen.\n{flair}"
         f"{bonus_line}"
         f"{xp_note}"
