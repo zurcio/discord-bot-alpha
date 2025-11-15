@@ -334,6 +334,7 @@
       "usable": false,
       "sellable": true,
       "value": 1000,
+      "emoji_id": 1439039639276224664,
       "description": "The tail of a crawler. Found by defeating crawler enemies on Terra and Luna"
     },
     "slug_slime": {
@@ -344,6 +345,7 @@
       "usable": false,
       "sellable": true,
       "value": 10000,
+      "emoji_id": 1439039661241667674,
       "description": "A glob of slime from a slug. Found by defeating slug enemies on Planet 3 and Planet 4."
     },
     "orchid_bloom": {
@@ -354,6 +356,7 @@
       "usable": false,
       "sellable": true,
       "value": 25000,
+      "emoji_id": 1439039643742900235,
       "description": "A beautiful flower in full bloom. Found by defeating orchid enemies on Planet 5 and Planet 6."
     },
     "crystal_shard": {
@@ -364,6 +367,7 @@
       "usable": false,
       "sellable": true,
       "value": 100000,
+      "emoji_id": 1439039640433852500,
       "description": "A shiny crystal fragment. Found by defeating crystal enemies on Planet 7 and Planet 8."
     },
     "lithium_ion": {
@@ -374,6 +378,7 @@
       "usable": false,
       "sellable": true,
       "value": 500000,
+      "emoji_id": 1439039641427906650,
       "description": "A lithium ion cell. Found by defeating lithioid enemies on Planet 9 and Planet 10."
     }
   },
@@ -385,6 +390,7 @@
       "usable": false,
       "sellable": true,
       "value": 25,
+      "emoji_id": 1439039609853186059,
       "description": "Basic Plasteel material used for crafting."
     },
     "plasteel_sheet": {
@@ -394,6 +400,7 @@
       "usable": false,
       "sellable": true,
       "value": 100,
+      "emoji_id": 1439039657823440986,
       "description": "10 Plasteel can be crafted into 1 Plasteel Sheet."
     },
     "plasteel_bar": {
@@ -403,6 +410,7 @@
       "usable": false,
       "sellable": true,
       "value": 500,
+      "emoji_id": 1439039655201738852,
       "description": "10 Plasteel Sheets can be crafted into 1 Plasteel Bar."
     },
     "plasteel_beam": {
@@ -412,6 +420,7 @@
       "usable": false,
       "sellable": true,
       "value": 5000,
+      "emoji_id": 1439039655902445700,
       "description": "10 Plasteel Bars can be crafted into 1 Plasteel Beam."
     },
     "plasteel_block": {
@@ -421,6 +430,7 @@
       "usable": false,
       "sellable": true,
       "value": 500000,
+      "emoji_id": 1439039656829124638,
       "description": "10 Plasteel Beams can be crafted into 1 Plasteel Block."
     },
     "circuit": {
@@ -430,6 +440,7 @@
       "usable": false,
       "sellable": true,
       "value": 100,
+      "emoji_id": 1439039638227521687,
       "description": "Basic electronic component used for crafting tech items."
     },
     "microchip": {
@@ -439,6 +450,7 @@
       "usable": false,
       "sellable": true,
       "value": 1000,
+      "emoji_id": 1439039642333741126,
       "description": "10 Circuits can be crafted into 1 Microchip."
     },
     "processor": {
@@ -448,6 +460,7 @@
       "usable": false,
       "sellable": true,
       "value": 10000,
+      "emoji_id": 1439039658460709046,
       "description": "10 Microchips can be crafted into 1 Processor."
     },
     "motherboard": {
@@ -457,6 +470,7 @@
       "usable": false,
       "sellable": true,
       "value": 100000,
+      "emoji_id": 1439039642333741126,
       "description": "10 Processors can be crafted into 1 Motherboard."
     },
     "quantum_computer": {
@@ -466,6 +480,7 @@
       "usable": false,
       "sellable": true,
       "value": 1000000,
+      "emoji_id": 1439039659983503551,
       "description": "10 Motherboards can be crafted into 1 Quantum Computer."
     },
     "plasma": {
@@ -475,6 +490,7 @@
       "usable": false,
       "sellable": true,
       "value": 500,
+      "emoji_id": 1439039644909047818,
       "description": "Basic energy/fuel material used for crafting energy devices."
     },
     "plasma_slag": {
@@ -484,6 +500,7 @@
       "usable": false,
       "sellable": true,
       "value": 2500,
+      "emoji_id": 1439039647929073785,
       "description": "10 Plasma units can be crafted into 1 Plasma Slag."
     },
     "plasma_charge": {
@@ -493,6 +510,7 @@
       "usable": false,
       "sellable": true,
       "value": 10000,
+      "emoji_id": 1439039645697577111,
       "description": "10 Plasma Slags can be crafted into 1 Plasma Charge."
     },
     "plasma_core": {
@@ -502,6 +520,7 @@
       "usable": false,
       "sellable": true,
       "value": 50000,
+      "emoji_id": 1439039646301687932,
       "description": "10 Plasma Charges can be crafted into 1 Plasma Core."
     },
     "plasma_module": {
@@ -511,6 +530,7 @@
       "usable": false,
       "sellable": true,
       "value": 500000,
+      "emoji_id": 1439039646897016843,
       "description": "10 Plasma Cores can be crafted into 1 Plasma Module."
     },
     "biofiber": {
@@ -520,6 +540,7 @@
       "usable": false,
       "sellable": true,
       "value": 200,
+      "emoji_id": 1439039636507726004,
       "description": "Basic organic material used for crafting biotech items."
     },
     "biopolymer": {
@@ -529,6 +550,7 @@
       "usable": false,
       "sellable": true,
       "value": 5000,
+      "emoji_id": 1439039636797390981,
       "description": "10 Biofiber units can be crafted into 1 Biopolymer."
     },
     "bio_gel": {
@@ -538,6 +560,7 @@
       "usable": false,
       "sellable": true,
       "value": 25000,
+      "emoji_id": 1439039633030779021,
       "description": "10 Biopolymers can be crafted into 1 Bio Gel."
     },
     "bio_metal_hybrid": {
@@ -547,6 +570,7 @@
       "usable": false,
       "sellable": true,
       "value": 100000,
+      "emoji_id": 1439039635790499912,
       "description": "10 Bio Gels can be crafted into 1 Bio-Metal Hybrid."
     },
     "bio_material_block": {
@@ -556,6 +580,7 @@
       "usable": false,
       "sellable": true,
       "value": 2500000,
+      "emoji_id": 1439039634175823984,
       "description": "10 Bio-Metal Hybrids can be crafted into 1 Bio-Material Block."
     }
   },
