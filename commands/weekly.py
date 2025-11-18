@@ -5,7 +5,7 @@ from core.decorators import requires_profile
 from core.shared import load_json
 from core.players import save_profile
 from core.constants import ITEMS_FILE
-from core.items import iterate_all_items
+from core.items import iterate_all_items, get_item_by_id
 from core.guards import require_no_lock
 from core.rewards import apply_rewards  # CHANGED
 from core.items import get_item_display_name  # NEW
@@ -78,9 +78,11 @@ class Weekly(commands.Cog):
         )
 
         # Resolve Supply Crate name (with emoji if configured)
-        try:
-            crate_display = get_item_display_name(items_data, crate_id)
-        except Exception:
+        crate_item = get_item_by_id(items_data, crate_id)
+        if crate_item:
+            crate_display = get_item_display_name(crate_item, crate_id, bot=self.bot)
+        else:
+            # Fallback: search iteratively for name
             crate_display = next(
                 (item.get("name", "Supply Crate") for iid, item in iterate_all_items(items_data) if str(iid) == crate_id),
                 "Supply Crate"

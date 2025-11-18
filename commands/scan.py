@@ -102,7 +102,7 @@ class Scan(commands.Cog):
                     # Enemy drops only get ship double_drops bonus
                     if not is_lootbox and not is_supply_crate and not is_enemy_drop:
                         qty = int(max(1, round(qty * materials_mult)))
-                    if double_items and not is_lootbox and not is_supply_crate:
+                    if double_items:
                         qty *= 2
 
                     inv[iid] = int(inv.get(iid, 0)) + qty
