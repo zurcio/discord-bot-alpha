@@ -8,6 +8,7 @@ from core.constants import ITEMS_FILE
 from core.items import iterate_all_items
 from core.guards import require_no_lock
 from core.rewards import apply_rewards  # CHANGED
+from core.items import get_item_display_name  # NEW
 
 class Weekly(commands.Cog):
     def __init__(self, bot):
@@ -76,8 +77,14 @@ class Weekly(commands.Cog):
             tags=["weekly"]
         )
 
-        Supply_Crates = (items_data or {}).get("Supply Crates", {})
-        Supply_Crate_name = Supply_Crates.get(crate_id, {}).get("name", "Supply Crate")
+        # Resolve Supply Crate name (with emoji if configured)
+        try:
+            crate_display = get_item_display_name(items_data, crate_id)
+        except Exception:
+            crate_display = next(
+                (item.get("name", "Supply Crate") for iid, item in iterate_all_items(items_data) if str(iid) == crate_id),
+                "Supply Crate"
+            )
 
         # Build message
         msg = f"{ctx.author.mention} claimed their weekly reward!\n"
@@ -86,7 +93,7 @@ class Weekly(commands.Cog):
         if res.get("xp_result", {}).get("leveled_up"):
             levels_gained = res["xp_result"].get("levels_gained", 1)
             msg += f"\n🎉 Level up! Now Level {player['level']} (+{levels_gained})."
-        msg += f"\n🎁 +1 {Supply_Crate_name}"
+        msg += f"\n🎁 +1 {crate_display}"
         msg += f"\n💳 +{credits} Credits"
         msg += f"\n🩹 +{med_kits_earned} Med Kits" if medkit_id else ""
         msg += f"\n🫧 +{oxy_earned} Oxygen Tanks" if oxy_id else ""
