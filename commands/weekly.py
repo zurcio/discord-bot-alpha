@@ -76,8 +76,8 @@ class Weekly(commands.Cog):
             tags=["weekly"]
         )
 
-        Supply Cratees = (items_data or {}).get("Supply Cratees", {})
-        Supply Crate_name = Supply Cratees.get(crate_id, {}).get("name", "Supply Crate")
+        Supply_Crates = (items_data or {}).get("Supply Crates", {})
+        Supply_Crate_name = Supply_Crates.get(crate_id, {}).get("name", "Supply Crate")
 
         # Build message
         msg = f"{ctx.author.mention} claimed their weekly reward!\n"
@@ -86,7 +86,7 @@ class Weekly(commands.Cog):
         if res.get("xp_result", {}).get("leveled_up"):
             levels_gained = res["xp_result"].get("levels_gained", 1)
             msg += f"\n🎉 Level up! Now Level {player['level']} (+{levels_gained})."
-        msg += f"\n🎁 +1 {Supply Crate_name}"
+        msg += f"\n🎁 +1 {Supply_Crate_name}"
         msg += f"\n💳 +{credits} Credits"
         msg += f"\n🩹 +{med_kits_earned} Med Kits" if medkit_id else ""
         msg += f"\n🫧 +{oxy_earned} Oxygen Tanks" if oxy_id else ""
